@@ -105,10 +105,10 @@ def smooth(x,window_len=10,window='hanning'):
      """
  
      if x.ndim != 1:
-         raise ValueError, "smooth only accepts 1 dimension arrays."
+         raise ValueError("smooth only accepts 1 dimension arrays.")
  
      if x.size < window_len:
-         raise ValueError, "Input vector needs to be bigger than window size."
+         raise ValueError("Input vector needs to be bigger than window size.")
  
  
      if window_len<3:
@@ -116,7 +116,7 @@ def smooth(x,window_len=10,window='hanning'):
  
  
      if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-         raise ValueError, "Window is one of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
+         raise ValueError("Window is one of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'")
  
  
      s=numpy.r_[2*x[0]-x[window_len:1:-1],x,2*x[-1]-x[-1:-window_len:-1]]
@@ -148,11 +148,11 @@ def pei(law,wave,ebmv,rv,a_i,lambda_i,b_i,n_i):
 
     xi = 0.
     for i in range(6):
-	term  = math.pow((wave / lambda_i[law,i]),n_i[law,i])
-	term += math.pow((lambda_i[law,i] / wave),n_i[law,i])
-	term += b_i[law,i]
-	term  = a_i[law,i] / term
-	xi   += term
+        term  = math.pow((wave / lambda_i[law,i]),n_i[law,i])
+        term += math.pow((lambda_i[law,i] / wave),n_i[law,i])
+        term += b_i[law,i]
+        term  = a_i[law,i] / term
+        xi   += term
 
 # remove a_b normalization on the extinction curve
 
@@ -780,7 +780,7 @@ def kepler_focus_multi_prf_2d(params,*args):
 
     prfDimY = datDimY / prfDelY / w
     prfDimX = datDimX / prfDelX / w
-    print w, prfDimY, prfDimX
+    print(w, prfDimY, prfDimX)
 
 # location of the data image centered on the PRF image (in PRF pixel units)
 

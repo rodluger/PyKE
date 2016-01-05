@@ -194,17 +194,17 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
 # print target data
 
     if status == 0 and verbose:
-        print ''
-        print '      KepID:  %s' % kepid
-        print ' RA (J2000):  %s' % ra
-        print 'Dec (J2000): %s' % dec
-        print '     KepMag:  %s' % kepmag
-        print '   SkyGroup:    %2s' % skygroup
-        print '     Season:    %2s' % str(season)
-        print '    Channel:    %2s' % channel
-        print '     Module:    %2s' % module
-        print '     Output:     %1s' % output
-        print ''
+        print('')
+        print('      KepID:  %s' % kepid)
+        print(' RA (J2000):  %s' % ra)
+        print('Dec (J2000): %s' % dec)
+        print('     KepMag:  %s' % kepmag)
+        print('   SkyGroup:    %2s' % skygroup)
+        print('     Season:    %2s' % str(season))
+        print('    Channel:    %2s' % channel)
+        print('     Module:    %2s' % module)
+        print('     Output:     %1s' % output)
+        print('')
 
 # determine suitable PRF calibration file
 
@@ -588,13 +588,13 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
 
 # close input structure
 
-            status = kepio.closefits(struct,logfile,verbose)	    
+            status = kepio.closefits(struct,logfile,verbose)            
 
 # clean up x-axis unit
 
     if status == 0:
-	barytime0 = float(int(t[0] / 100) * 100.0)
-	t -= barytime0
+        barytime0 = float(int(t[0] / 100) * 100.0)
+        t -= barytime0
         t = numpy.insert(t,[0],[t[0]]) 
         t = numpy.append(t,[t[-1]])
         xlab = 'BJD $-$ %d' % barytime0
@@ -1064,7 +1064,7 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
                     pylab.ion()
                     pylab.plot([])
                     pylab.ioff()
-	
+        
 # stop time
 
     kepmsg.clock('\n\nKEPPRFPHOT ended at',logfile,verbose)

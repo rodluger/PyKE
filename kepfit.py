@@ -45,38 +45,38 @@ def leastsquare(functype,pinit,xdata,ydata,yerr,logfile,verbose):
 # if no data errors, substitude rms of fit
 
     if (yerr == None):
-	yerr = []
-	rerr = []
-	for i in range(len(ydata)):
-	    rerr.append(1.e10)
-	try:
+        yerr = []
+        rerr = []
+        for i in range(len(ydata)):
+            rerr.append(1.e10)
+        try:
             out = optimize.leastsq(errfunc,pinit,args=(xdata,ydata,rerr),full_output=1)
-	except:
-	    message = 'ERROR -- KEPFIT.LEASTSQUARE: failed to fit data'
-	    status = kepmsg.err(logfile,message,verbose)
+        except:
+            message = 'ERROR -- KEPFIT.LEASTSQUARE: failed to fit data'
+            status = kepmsg.err(logfile,message,verbose)
             if functype == 'poly0':
                 out = [numpy.mean(ydata),sqrt(numpy.mean(ydata))]
-	if (functype == 'poly0' or functype == 'sineCompareBinPSF'):
-	    coeffs.append(out[0])
-	else:
-	    coeffs = out[0]
-	if (len(coeffs) > 1):
-	    fit = fitfunc(coeffs,xdata)
-	else:
-	    fit = numpy.zeros(len(xdata))
-	    for i in range(len(fit)):
-		fit[i] = coeffs[0]
-	sigma, status = kepstat.rms(ydata,fit,logfile,verbose)
-	for i in range(len(ydata)):
-	    yerr.append(sigma)
+        if (functype == 'poly0' or functype == 'sineCompareBinPSF'):
+            coeffs.append(out[0])
+        else:
+            coeffs = out[0]
+        if (len(coeffs) > 1):
+            fit = fitfunc(coeffs,xdata)
+        else:
+            fit = numpy.zeros(len(xdata))
+            for i in range(len(fit)):
+                fit[i] = coeffs[0]
+        sigma, status = kepstat.rms(ydata,fit,logfile,verbose)
+        for i in range(len(ydata)):
+            yerr.append(sigma)
 
 # fit data 
 
     try:
         out = optimize.leastsq(errfunc, pinit, args=(xdata, ydata, yerr), full_output=1)
     except:
-	message = 'ERROR -- KEPFIT.LEASTSQUARE: failed to fit data'
-	status = kepmsg.err(logfile,message,verbose)
+        message = 'ERROR -- KEPFIT.LEASTSQUARE: failed to fit data'
+        status = kepmsg.err(logfile,message,verbose)
         if functype == 'poly0':
             out = [numpy.mean(ydata),sqrt(numpy.mean(ydata))]
 
@@ -85,33 +85,33 @@ def leastsquare(functype,pinit,xdata,ydata,yerr,logfile,verbose):
     coeffs = []
     covar = []
     if (functype == 'poly0' or functype == 'poly1con' or 
-	functype == 'sineCompareBinPSF'):
-	coeffs.append(out[0])
-	covar.append(out[1])
+        functype == 'sineCompareBinPSF'):
+        coeffs.append(out[0])
+        covar.append(out[1])
     else:
-	coeffs = out[0]
-	covar = out[1]
+        coeffs = out[0]
+        covar = out[1]
 
 # calculate 1-sigma error on coefficients
 
     errors = []
     if (covar == None): 
-	message = 'WARNING -- KEPFIT.leastsquare: NULL covariance matrix'
-#	kepmsg.log(logfile,message,verbose)
+        message = 'WARNING -- KEPFIT.leastsquare: NULL covariance matrix'
+#        kepmsg.log(logfile,message,verbose)
     for i in range(len(coeffs)):
-	if (covar != None and len(coeffs) > 1):
-	    errors.append(sqrt(abs(covar[i][i])))
-	else:
-	    errors.append(coeffs[i])
+        if (covar != None and len(coeffs) > 1):
+            errors.append(sqrt(abs(covar[i][i])))
+        else:
+            errors.append(coeffs[i])
 
 # generate fit points for rms calculation
 
     if (len(coeffs) > 1):
-	fit = fitfunc(coeffs,xdata)
+        fit = fitfunc(coeffs,xdata)
     else:
-	fit = numpy.zeros(len(xdata))
-	for i in range(len(fit)):
-	    fit[i] = coeffs[0]
+        fit = numpy.zeros(len(xdata))
+        for i in range(len(fit)):
+            fit[i] = coeffs[0]
     sigma, status = kepstat.rms(ydata,fit,logfile,verbose)
 
 # generate fit points for plotting
@@ -120,17 +120,17 @@ def leastsquare(functype,pinit,xdata,ydata,yerr,logfile,verbose):
     plotx = linspace(xdata.min(),xdata.max(),10000)
     ploty = fitfunc(coeffs,plotx)
     if (len(coeffs) == 1):
-	ploty = []
-	for i in range(len(plotx)):
-	    ploty.append(coeffs[0])
-	ploty = numpy.array(ploty)
+        ploty = []
+        for i in range(len(plotx)):
+            ploty.append(coeffs[0])
+        ploty = numpy.array(ploty)
 
 # reduced chi^2 calculation
 
     chi2 = 0
     dof = len(ydata) - len(coeffs)
     for i in range(len(ydata)):
-	chi2 += (ydata[i] - fit[i])**2 / yerr[i]
+        chi2 += (ydata[i] - fit[i])**2 / yerr[i]
     chi2 /= dof
 
     return coeffs, errors, covar, sigma, chi2, dof, fit, plotx, ploty, status
@@ -158,44 +158,44 @@ def lsqclip(functype,pinit,x,y,yerr,rej_lo,rej_hi,niter,logfile,verbose):
 # error catching
 
     if (len(x) == 0):
-	status = kepmsg.exit('ERROR -- KEPFIT.LSQCLIP: x data array is empty')
+        status = kepmsg.exit('ERROR -- KEPFIT.LSQCLIP: x data array is empty')
     if (len(y) == 0):
-	status = kepmsg.exit('ERROR -- KEPFIT.LSQCLIP: y data array is empty')
+        status = kepmsg.exit('ERROR -- KEPFIT.LSQCLIP: y data array is empty')
     if (len(x) < len(pinit)):
-	kepmsg.warn(logfile,'WARNING -- KEPFIT.LSQCLIP: no degrees of freedom')
+        kepmsg.warn(logfile,'WARNING -- KEPFIT.LSQCLIP: no degrees of freedom')
         
 
 # sigma-clipping iterations
 
     while (iiter < niter and len(x) > len(pinit) and iterstatus > 0):
-	iterstatus = 0
-	tmpx = []
-	tmpy = []
-	tmpyerr = []
-	npts.append(len(x))
-	coeffs,errors,covar,sigma,chi2,dof,fit,plotx,ploty,status = \
-	    leastsquare(functype,pinit,x,y,yerr,logfile,verbose)
-	pinit = coeffs
+        iterstatus = 0
+        tmpx = []
+        tmpy = []
+        tmpyerr = []
+        npts.append(len(x))
+        coeffs,errors,covar,sigma,chi2,dof,fit,plotx,ploty,status = \
+            leastsquare(functype,pinit,x,y,yerr,logfile,verbose)
+        pinit = coeffs
 
 # point-by-point sigma-clipping test
 
-	for ix in range(npts[iiter]):
-	    if (y[ix] - fit[ix] < rej_hi * sigma and
-		fit[ix] - y[ix] < rej_lo * sigma):
-		tmpx.append(x[ix])
-		tmpy.append(y[ix])
-		if (yerr != None): tmpyerr.append(yerr[ix])
-	    else:
-		iterstatus = 1
-	x = scipy.array(tmpx)
-	y = scipy.array(tmpy)
-	if (yerr != None): yerr = scipy.array(tmpyerr)
-	iiter += 1
+        for ix in range(npts[iiter]):
+            if (y[ix] - fit[ix] < rej_hi * sigma and
+                fit[ix] - y[ix] < rej_lo * sigma):
+                tmpx.append(x[ix])
+                tmpy.append(y[ix])
+                if (yerr != None): tmpyerr.append(yerr[ix])
+            else:
+                iterstatus = 1
+        x = scipy.array(tmpx)
+        y = scipy.array(tmpy)
+        if (yerr != None): yerr = scipy.array(tmpyerr)
+        iiter += 1
 
 # fudge scalar models
 
 #    for i in range(len(plotx)):
-	
+        
 
 # coeffs = best fit coefficients
 # covar = covariance matrix
@@ -226,32 +226,32 @@ def poly(x,y,order,rej_lo,rej_hi,niter):
 # sigma-clipping iterations
 
     while (iiter < niter and iterstatus > 0):
-	iterstatus = 0
-	tmpx = []
-	tmpy = []
-	npts.append(len(x))
-	coeffs = polyfit(x,y,order)
-	fit = polyval(coeffs,x)
+        iterstatus = 0
+        tmpx = []
+        tmpy = []
+        npts.append(len(x))
+        coeffs = polyfit(x,y,order)
+        fit = polyval(coeffs,x)
 
 # calculate sigma of fit
 
-	sig = 0
-	for ix in range(npts[iiter]):
-	    sig = sig + (y[ix] - fit[ix])**2
-	sig = math.sqrt(sig / (npts[iiter] - 1))
+        sig = 0
+        for ix in range(npts[iiter]):
+            sig = sig + (y[ix] - fit[ix])**2
+        sig = math.sqrt(sig / (npts[iiter] - 1))
 
 # point-by-point sigma-clipping test
 
-	for ix in range(npts[iiter]):
-	    if (y[ix] - fit[ix] < rej_hi * sig and
-		fit[ix] - y[ix] < rej_lo * sig):
-		tmpx.append(x[ix])
-		tmpy.append(y[ix])
-	    else:
-		iterstatus = 1
-	x = tmpx
-	y = tmpy
-	iiter += 1
+        for ix in range(npts[iiter]):
+            if (y[ix] - fit[ix] < rej_hi * sig and
+                fit[ix] - y[ix] < rej_lo * sig):
+                tmpx.append(x[ix])
+                tmpy.append(y[ix])
+            else:
+                iterstatus = 1
+        x = tmpx
+        y = tmpy
+        iiter += 1
 
 # coeffs = best fit coefficients
 # iiter = number of sigma clipping iteration before convergence
@@ -740,8 +740,8 @@ def fitFocusMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdel
             x.append(ans[nsrc*2+i]) 
         b = ans[nsrc*3]
         w = ans[nsrc*3+1]
-        print ans
-        print f,y,x,b,w
+        print(ans)
+        print(f,y,x,b,w)
 
 # calculate best-fit model
 
@@ -753,7 +753,7 @@ def fitFocusMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdel
         DY = 0.0; DX = 0.0
         if int(prfDimY) % 2 == 0: DY = 1.0
         if int(prfDimX) % 2 == 0: DX = 1.0
-        print w, prfDimY, prfDimX
+        print(w, prfDimY, prfDimX)
         prfMod = zeros((prfDimY+DY,prfDimX+DX))
         for i in range(nsrc):
             prfTmp = shift(prf,[y[i]/w,x[i]/w],order=1,mode='constant')
