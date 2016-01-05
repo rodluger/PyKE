@@ -38,7 +38,7 @@ def kepimages(infile,outfix,imtype,ranges,clobber,verbose,logfile,status):
 # open input file
 
     status = 0
-    print ' '
+    print(' ')
     instr = pyfits.open(infile,mode='readonly',memmap=True)
     cards0 = instr[0].header.cards
     cards1 = instr[1].header.cards
@@ -108,7 +108,7 @@ def kepimages(infile,outfix,imtype,ranges,clobber,verbose,logfile,status):
             hdu0 = pyfits.PrimaryHDU()
             for i in range(len(cards0)):
                 try:
-                    if cards0[i].key not in hdu0.header.keys():
+                    if cards0[i].key not in list(hdu0.header.keys()):
                         hdu0.header.update(cards0[i].key, cards0[i].value, cards0[i].comment)
                     else:
                         hdu0.header.cards[cards0[i].key].comment = cards0[i].comment
@@ -122,12 +122,12 @@ def kepimages(infile,outfix,imtype,ranges,clobber,verbose,logfile,status):
             hdu1 = ImageHDU(flux[cadence])
             for i in range(len(cards2)):
                 try:
-                    if cards2[i].key not in hdu1.header.keys():
+                    if cards2[i].key not in list(hdu1.header.keys()):
                         hdu1.header.update(cards2[i].key, cards2[i].value, cards2[i].comment)
                 except:
                     pass
             for i in range(len(cards1)):
-                if (cards1[i].key not in hdu1.header.keys() and
+                if (cards1[i].key not in list(hdu1.header.keys()) and
                     cards1[i].key[:4] not in ['TTYP','TFOR','TUNI','TDIS','TDIM','WCAX','1CTY',
                                               '2CTY','1CRP','2CRP','1CRV','2CRV','1CUN','2CUN',
                                               '1CDE','2CDE','1CTY','2CTY','1CDL','2CDL','11PC',
@@ -205,7 +205,7 @@ def kepimages(infile,outfix,imtype,ranges,clobber,verbose,logfile,status):
 
     if status == 0:
         status = kepio.closefits(instr,logfile,verbose)	    
-        print '\n'
+        print('\n')
 
 # end time
 

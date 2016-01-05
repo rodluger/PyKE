@@ -129,7 +129,7 @@ def appellf1(a,b1,b2,c,z1,z2,**kwargs):
     #2011-04-22 10:15 IJMC: Adapted from mpmath, but using scipy Gauss
     #hypergeo. function
 
-    if kwargs.has_key('eps'):
+    if 'eps' in kwargs:
         eps = kwargs['eps']
     else:
         eps = 1e-12
@@ -294,7 +294,7 @@ def ellpic_bulirsch(n, k, tol=100*eps, maxiter=1e4):
     p = n + 1.
     
     if min(p) < 0:
-        print "Negative p"
+        print("Negative p")
         
     # Initialize:
     m0 = np.array(1.)
@@ -391,9 +391,9 @@ def t2z(tt, per, inc, hjd, ars, ecc=0, longperi=0):
     import analysis as an
 
 
-    if ecc <> 0:
+    if ecc != 0:
         ecc = 0
-        print "WARNING: setting ecc=0 for now until I get this function working"
+        print("WARNING: setting ecc=0 for now until I get this function working")
 
 
     if ecc==0:
@@ -414,8 +414,8 @@ def uniform(*arg, **kw):
     :func:`occultuniform`.
     """
     # 2011-04-19 15:06 IJMC: Created
-    print "The function 'transit.uniform()' is deprecated."
-    print "Please use transit.occultuniform() in the future."
+    print("The function 'transit.uniform()' is deprecated.")
+    print("Please use transit.occultuniform() in the future.")
     return occultuniform(*arg, **kw)
 
 
@@ -474,9 +474,9 @@ def occultuniform(z, p, complement=False):
         fsecondary[i4] = 1.
 
         if not (i1+i2+i3+i4).all():
-            print "warning -- some input values not indexed!"
-        if (i1.sum()+i2.sum()+i3.sum()+i4.sum() <> z.size):
-            print "warning -- indexing didn't get the right number of values"
+            print("warning -- some input values not indexed!")
+        if (i1.sum()+i2.sum()+i3.sum()+i4.sum() != z.size):
+            print("warning -- indexing didn't get the right number of values")
             #pdb.set_trace()
         
 
@@ -507,16 +507,16 @@ def depthchisq(z, planet, data, ddepth=[-.1,.1], ndepth=20, w=None):
     #z = transit.t2z(planet, planet.i, hjd, 0.211)
     nobs = z.size
     depths = np.linspace(ddepth[0],ddepth[1], ndepth)
-    print depths
+    print(depths)
     chisq = np.zeros(ndepth, float)
     for ii in range(ndepth):
         tr = -(transit.occultuniform(z, np.sqrt(planet.depth))/depths[ii])
         if w is None:
             w = np.ones(nobs,float)/data[tr==0].std()
-        print 'w>>',w[0]
+        print('w>>',w[0])
         baseline = np.ones(nobs,float) * an.wmean(data[tr==0], w[tr==0])
-        print 'b>>',baseline[0]
-        print 'd[ii]>>',depths[ii]
+        print('b>>',baseline[0])
+        print('d[ii]>>',depths[ii])
         model = baseline + tr*depths[ii]
         plot(model)
         chisq[ii] = (w*(model-data)**2).sum()
@@ -575,8 +575,8 @@ def smallplanet_nonlinear(*arg, **kw):
     """
     # 2011-04-19 15:10 IJMC: Created
 
-    print "The function 'transit.smallplanet_nonlinear()' is deprecated."
-    print "Please use transit.occultnonlin_small() in the future."
+    print("The function 'transit.smallplanet_nonlinear()' is deprecated.")
+    print("Please use transit.occultnonlin_small() in the future.")
 
     return occultnonlin_small(*arg, **kw)
 
@@ -784,9 +784,9 @@ def occultquad(z,p0, gamma, retall=False, verbose=False):
                      i05.sum() + i06.sum() + i07.sum() + i08.sum() + \
                      i09.sum() + i10.sum() + i11.sum()) 
 
-        print "%i/%i indices used" % (nused, i01.size)
+        print("%i/%i indices used" % (nused, i01.size))
         if not allind.all():
-            print "Some indices not used!"
+            print("Some indices not used!")
 
     #pdb.set_trace()
 
@@ -1475,7 +1475,7 @@ def modeleclipse_simple14(params, tparams, func, t):
         t = t.reshape(14, t.size/14)
         tis1D = True  # "t" is 1D
     elif len(t.shape)>2:
-        print "t is of too high a dimension (>2)"
+        print("t is of too high a dimension (>2)")
         return -1
 
     # Get the vanilla transit light curve:
@@ -1552,7 +1552,7 @@ def modeltransit14(params, func, per, t):
         t = t.reshape(14, t.size/14)
         tis1D = True  # "t" is 1D
     elif len(t.shape)>2:
-        print "t is of too high a dimension (>2)"
+        print("t is of too high a dimension (>2)")
         return -1
 
     # Get the vanilla transit light curve:
@@ -1800,8 +1800,8 @@ def mcmc_transit_single14(flux, sigma, t, per, func, params, stepsize, numit, ns
     zmodel = modeltransit14(params, func, per, t)
     currchisq  = (((zmodel - flux)**2)*weights).ravel().sum()
     bestchisq  = currchisq
-    print "zmodel [0,1,2]=", zmodel.ravel()[0:3]
-    print "Initial chisq is %5.1f" % currchisq
+    print("zmodel [0,1,2]=", zmodel.ravel()[0:3])
+    print("Initial chisq is %5.1f" % currchisq)
 
 #Run Metropolis-Hastings Monte Carlo algorithm 'numit' times
     for j in range(numit):

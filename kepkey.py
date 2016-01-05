@@ -270,7 +270,7 @@ def emptykeys(struct,file,logfile,verbose):
 # delete empty keywords
 
     for hdu in range(nhdu):
-        for keyword in struct[hdu].header.keys():
+        for keyword in list(struct[hdu].header.keys()):
             head = struct[hdu].header[keyword]
             if ('pyfits' in str(head) and 'Undefined' in str(head)):
                 status = delete(keyword,struct[hdu],file,logfile,verbose)

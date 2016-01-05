@@ -175,7 +175,7 @@ def kepsmooth(infile,outfile,datacol,function,fscale,plot,plotlab,
                       'ytick.labelsize': ticksize}
             rcParams.update(params)
         except:
-            print 'ERROR -- KEPSMOOTH: install latex for scientific plotting'
+            print('ERROR -- KEPSMOOTH: install latex for scientific plotting')
             status = 1
     if status == 0 and plot:
         pylab.figure(1,figsize=[xsize,ysize])

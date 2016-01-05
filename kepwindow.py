@@ -173,7 +173,7 @@ def kepwindow(infile,outfile,fcol,fmax,nfreq,plot,clobber,verbose,logfile,status
                       'ytick.labelsize': ticksize}
             rcParams.update(params)
         except:
-            print 'ERROR -- KEPWINDOW: install latex for scientific plotting'
+            print('ERROR -- KEPWINDOW: install latex for scientific plotting')
             status = 1
     if status == 0 and plot:
         pylab.figure(1,figsize=[xsize,ysize])

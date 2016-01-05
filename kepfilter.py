@@ -221,7 +221,7 @@ def kepfilter(infile,outfile,datacol,function,cutoff,passband,plot,plotlab,
                       'ytick.labelsize': ticksize}
             rcParams.update(params)
         except:
-            print 'ERROR -- KEPFILTER: install latex for scientific plotting'
+            print('ERROR -- KEPFILTER: install latex for scientific plotting')
             status = 1
     if status == 0 and plot:
         pylab.figure(figsize=[xsize,ysize])

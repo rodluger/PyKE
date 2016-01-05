@@ -143,7 +143,7 @@ def kepfake(outfile,prfdir,module,output,column,row,kepmag,background,xdim,ydim,
     if status == 0:
         prf = zeros(shape(prfn[0]),dtype='float32')
         prfWeight = zeros((5),dtype='float32')
-        for i in xrange(5):
+        for i in range(5):
             prfWeight[i] = sqrt((column - crval1p[i])**2 + (row - crval2p[i])**2)
             if prfWeight[i] == 0.0: prfWeight[i] = 1.0e6
             prf = prf + prfn[i] / prfWeight[i]

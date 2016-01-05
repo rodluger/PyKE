@@ -150,7 +150,7 @@ def keprange(infile,rinfile,outfile,column,clobber,verbose,logfile,status,cLine=
                       'ytick.labelsize': ticksize}
             pylab.rcParams.update(params)
         except:
-            print 'ERROR -- KEPRANGE: install latex for scientific plotting'
+            print('ERROR -- KEPRANGE: install latex for scientific plotting')
             status = 1
     if status == 0:
 	pylab.figure(figsize=[xsize,ysize])
@@ -313,7 +313,7 @@ def clicker1(event):
                     disconnect(fid)
                     plotlc(cmdLine)
                 else:
-                    print 'WARNING -- KEPRANGE: input ranges file does not exist or was not provided'
+                    print('WARNING -- KEPRANGE: input ranges file does not exist or was not provided')
     return
 
 # -----------------------------------------------------------
@@ -341,9 +341,9 @@ def clicker2(event):
                         txt += str(t1) + ',' + str(t2) + '\n'
                         nt += 2
                     txt = txt.strip()
-                    print txt
+                    print(txt)
                     kepmsg.file(outf,txt,True)
-                    print '\nWrote ASCII file ' + outf
+                    print('\nWrote ASCII file ' + outf)
                     plotlc(cmdLine)
     return
 
@@ -388,7 +388,7 @@ def clicker4(event):
                     txt += str(t1) + ',' + str(t2) + '\n'
                     nt += 2
                 txt = txt.strip()
-                print '\n' + txt
+                print('\n' + txt)
                 disconnect(aid)
                 disconnect(bid)
                 disconnect(cid)

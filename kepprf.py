@@ -79,14 +79,14 @@ def kepprf(infile,plotfile,rownum,columns,rows,fluxes,border,background,focus,pr
             f = fluxes.strip().split(',')
             x = columns.strip().split(',')
             y = rows.strip().split(',')
-            for i in xrange(len(f)):
+            for i in range(len(f)):
                 f[i] = float(f[i])
         except:
             f = fluxes
             x = columns
             y = rows
         nsrc = len(f)
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             try:
                 guess.append(float(f[i]))
             except:
@@ -98,14 +98,14 @@ def kepprf(infile,plotfile,rownum,columns,rows,fluxes,border,background,focus,pr
                 message += 'fluxes must have the same number of sources'
                 status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(nsrc):
+            for i in range(nsrc):
                 try:
                     guess.append(float(x[i]))
                 except:
                     message = 'ERROR -- KEPPRF: Columns must be floating point numbers'
                     status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(nsrc):
+            for i in range(nsrc):
                 try:
                     guess.append(float(y[i]))
                 except:
@@ -160,18 +160,18 @@ def kepprf(infile,plotfile,rownum,columns,rows,fluxes,border,background,focus,pr
 # print target data
 
     if status == 0 and verbose:
-        print ''
-        print '      KepID: %s' % kepid
-        print '        BJD: %.2f' % (barytime[rownum-1] + 2454833.0)
-        print ' RA (J2000): %s' % ra
-        print 'Dec (J2000):  %s' % dec
-        print '     KepMag:  %s' % kepmag
-        print '   SkyGroup:   %2s' % skygroup
-        print '     Season:   %2s' % str(season)
-        print '    Channel:   %2s' % channel
-        print '     Module:   %2s' % module
-        print '     Output:    %1s' % output
-        print ''
+        print('')
+        print('      KepID: %s' % kepid)
+        print('        BJD: %.2f' % (barytime[rownum-1] + 2454833.0))
+        print(' RA (J2000): %s' % ra)
+        print('Dec (J2000):  %s' % dec)
+        print('     KepMag:  %s' % kepmag)
+        print('   SkyGroup:   %2s' % skygroup)
+        print('     Season:   %2s' % str(season))
+        print('    Channel:   %2s' % channel)
+        print('     Module:   %2s' % module)
+        print('     Output:    %1s' % output)
+        print('')
 
 # is this a good row with finite timestamp and pixels?
 
@@ -239,7 +239,7 @@ def kepprf(infile,plotfile,rownum,columns,rows,fluxes,border,background,focus,pr
     if status == 0:
         prf = zeros(shape(prfn[0]),dtype='float32')
         prfWeight = zeros((5),dtype='float32')
-        for i in xrange(5):
+        for i in range(5):
             prfWeight[i] = sqrt((column - crval1p[i])**2 + (row - crval2p[i])**2)
             if prfWeight[i] == 0.0:
                 prfWeight[i] = 1.0e-6
@@ -303,7 +303,7 @@ def kepprf(infile,plotfile,rownum,columns,rows,fluxes,border,background,focus,pr
             args = (DATx,DATy,DATimg,ERRimg,nsrc,splineInterpolation,float(x[0]),float(y[0]))
             ans = fmin_powell(kepfunc.PRF,guess,args=args,xtol=xtol,
                               ftol=ftol,disp=False)
-        print 'Convergence time = %.2fs\n' % (time.time() - start)
+        print('Convergence time = %.2fs\n' % (time.time() - start))
 
 # pad the PRF data if the PRF array is smaller than the data array 
 
@@ -418,32 +418,50 @@ def kepprf(infile,plotfile,rownum,columns,rows,fluxes,border,background,focus,pr
             kepmsg.log(logfile,'PRF rotation angle = %.2f deg' % angle,True)
 
 # measure flux fraction and contamination
-
-    if status == 0:
+    
+    # LUGER: This looks horribly bugged. ``PRFall`` is certainly NOT the sum of the all the sources.
+    
+    if status == 0:    
         PRFall = kepfunc.PRF2DET(flux,OBJx,OBJy,DATx,DATy,wx,wy,angle,splineInterpolation)
         PRFone = kepfunc.PRF2DET([flux[0]],[OBJx[0]],[OBJy[0]],DATx,DATy,wx,wy,angle,splineInterpolation)
+        
+        # LUGER: Add up contaminant fluxes
+        PRFcont = np.zeros_like(PRFone)
+        for ncont in range(1, len(flux)):
+          PRFcont += kepfunc.PRF2DET([flux[ncont]],[OBJx[ncont]],[OBJy[ncont]],DATx,DATy,wx,wy,angle,splineInterpolation)
+        PRFcont[np.where(PRFcont < 0)] = 0
+    
         FluxInMaskAll = numpy.nansum(PRFall)
         FluxInMaskOne = numpy.nansum(PRFone)
         FluxInAperAll = 0.0
         FluxInAperOne = 0.0
+        FluxInAperAllTrue = 0.0
+        
         for i in range(1,ydim):
             for j in range(1,xdim):
                 if kepstat.bitInBitmap(maskimg[i,j],2):
                     FluxInAperAll += PRFall[i,j]
                     FluxInAperOne += PRFone[i,j]
+                    FluxInAperAllTrue += PRFone[i,j] + PRFcont[i,j]
         FluxFraction = FluxInAperOne / flux[0]
         try:
             Contamination = (FluxInAperAll - FluxInAperOne) / FluxInAperAll
         except:
             Contamination = 0.0
-
+        
+        # LUGER: Pixel crowding metrics
+        Crowding = PRFone / (PRFone + PRFcont)
+        
+        # LUGER: Optimal aperture crowding metric
+        CrowdAper = FluxInAperOne / FluxInAperAllTrue
+        
         kepmsg.log(logfile,'\n                Total flux in mask = %.2f e-/s' % FluxInMaskAll,True)
         kepmsg.log(logfile,'               Target flux in mask = %.2f e-/s' % FluxInMaskOne,True)
         kepmsg.log(logfile,'            Total flux in aperture = %.2f e-/s' % FluxInAperAll,True)
         kepmsg.log(logfile,'           Target flux in aperture = %.2f e-/s' % FluxInAperOne,True)
         kepmsg.log(logfile,'  Target flux fraction in aperture = %.2f%%' % (FluxFraction * 100.0),True)
         kepmsg.log(logfile,'Contamination fraction in aperture = %.2f%%' % (Contamination * 100.0),True)
-
+        kepmsg.log(logfile,'       Crowding metric in aperture = %.4f' % (CrowdAper),True)
 
 # constuct model PRF in detector coordinates
 
@@ -515,7 +533,7 @@ def kepprf(infile,plotfile,rownum,columns,rows,fluxes,border,background,focus,pr
         plotimage(imgprf_pl,zminpr,zmaxpr,2,row,column,xdim,ydim,0.44,0.53,'model',colmap,labcol)
         kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,1,apercol,'--',0.5)
         kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,2,apercol,'-',3.0)
-        plotimage(imgfit_pl,zminfl,zmaxfl,3,row,column,xdim,ydim,0.07,0.08,'fit',colmap,labcol)
+        plotimage(imgfit_pl,zminfl,zmaxfl,3,row,column,xdim,ydim,0.07,0.08,'fit',colmap,labcol,crowd=Crowding)
 #        plotimage(imgres_pl,-zmaxre,zmaxre,4,row,column,xdim,ydim,0.44,0.08,'residual',colmap,'k')
         plotimage(imgres_pl,zminfl,zmaxfl,4,row,column,xdim,ydim,0.44,0.08,'residual',colmap,labcol)
             
@@ -596,7 +614,7 @@ def kepprf(infile,plotfile,rownum,columns,rows,fluxes,border,background,focus,pr
 # -----------------------------------------------------------
 # plot channel image
 
-def plotimage(imgflux_pl,zminfl,zmaxfl,plmode,row,column,xdim,ydim,winx,winy,tlabel,colmap,labcol):
+def plotimage(imgflux_pl,zminfl,zmaxfl,plmode,row,column,xdim,ydim,winx,winy,tlabel,colmap,labcol,crowd = None):
 
 # pixel limits of the subimage
 
@@ -635,6 +653,13 @@ def plotimage(imgflux_pl,zminfl,zmaxfl,plmode,row,column,xdim,ydim,winx,winy,tla
     pylab.text(0.05, 0.93,tlabel,horizontalalignment='left',verticalalignment='center',
                fontsize=36,fontweight=500,color=labcol,transform=ax.transAxes)
 
+    if crowd is not None:
+      for i in range(crowd.shape[0]):
+        for j in range(crowd.shape[1]):
+          y = (i + 0.5) / crowd.shape[0]
+          x = (j + 0.5) / crowd.shape[1]
+          pylab.text(x, y, '%.2f' % crowd[i][j],horizontalalignment='center',verticalalignment='center',
+               fontsize=14,fontweight=500,color=labcol,transform=ax.transAxes)
     return
 
 # -----------------------------------------------------------
@@ -649,7 +674,7 @@ def cmap_plot(cmdLine):
     maps.sort()
     l=len(maps)+1
     for i, m in enumerate(maps):
-        print m
+        print(m)
         subplot(l,1,i+1)
         pylab.setp(pylab.gca(),xticklabels=[],xticks=[],yticklabels=[],yticks=[])
         imshow(a,aspect='auto',cmap=get_cmap(m),origin="lower")
@@ -690,8 +715,8 @@ if '--shell' in sys.argv:
     parser.add_argument('--ftol', '-f', default=1.0, help='Fit minimization tolerance', dest='ftol', type=float)
     parser.add_argument('--imscale', '-i', help='Type of image intensity scale', default='linear', dest='imscale', type=str,choices=['linear','logarithmic','squareroot'])
     parser.add_argument('--colmap', '-c', help='Image colormap', default='YlOrBr', dest='cmap', type=str,choices=['Accent','Blues','BrBG','BuGn','BuPu','Dark2','GnBu','Greens','Greys','OrRd','Oranges','PRGn','Paired','Pastel1','Pastel2','PiYG','PuBu','PuBuGn','PuOr','PuRd','Purples','RdBu','RdGy','RdPu','RdYlBu','RdYlGn','Reds','Set1','Set2','Set3','Spectral','YlGn','YlGnBu','YlOrBr','YlOrRd','afmhot','autumn','binary','bone','brg','bwr','cool','copper','flag','gist_earth','gist_gray','gist_heat','gist_ncar','gist_rainbow','gist_yarg','gnuplot','gnuplot2','gray','hot','hsv','jet','ocean','pink','prism','rainbow','seismic','spectral','spring','summer','terrain','winter','browse'])
-    parser.add_argument('--labcol', help='Label color', default='#ffffff', type=str)
-    parser.add_argument('--apercol', help='Aperture color', default='#ffffff', type=str)
+    parser.add_argument('--labcol', help='Label color', default='k', type=str)
+    parser.add_argument('--apercol', help='Aperture color', default='b', type=str)
     parser.add_argument('--plot', action='store_true', help='Plot fit results?', default=False)
     parser.add_argument('--verbose', action='store_true', help='Write to a log file?')
     parser.add_argument('--logfile', '-l', default='kepprfphot.log', help='Name of ascii log file', dest='logfile', type=str)

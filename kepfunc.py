@@ -780,7 +780,7 @@ def kepler_focus_multi_prf_2d(params,*args):
 
     prfDimY = datDimY / prfDelY / w
     prfDimX = datDimX / prfDelX / w
-    print(w, prfDimY, prfDimX)
+    print((w, prfDimY, prfDimX))
 
 # location of the data image centered on the PRF image (in PRF pixel units)
 

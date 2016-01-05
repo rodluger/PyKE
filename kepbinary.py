@@ -223,10 +223,10 @@ def kepbinary(infile,outfile,datacol,m1,m2,r1,r2,period,bjd0,eccn,omega,inclinat
 # fit model to data using downhill simplex
 
     if status == 0 and job == 'fit':
-        print ''
-        print '%4s %11s %11s' % ('iter', 'delta', 'chi^2')
-        print '----------------------------'
-        print '%4d %.5E %.5E' % (0,aveDelta,chi2)
+        print('')
+        print('%4s %11s %11s' % ('iter', 'delta', 'chi^2'))
+        print('----------------------------')
+        print('%4d %.5E %.5E' % (0,aveDelta,chi2))
         bestFit = scipy.optimize.fmin(fitModel,params,args=(paramNames,dmedian,m1,m2,r1,r2,period,bjd0,eccn,
                                                             omega,inclination,depth,albedo,c1,c2,c3,c4,
                                                             gamma,contamination,npt,time,exptime,indata,
@@ -235,36 +235,36 @@ def kepbinary(infile,outfile,datacol,m1,m2,r1,r2,period,bjd0,eccn,omega,inclinat
 # calculate best fit binary model
 
     if status == 0 and job == 'fit':
-        print ''
+        print('')
         for i in range(len(paramNames)):
             if 'm1' in paramNames[i].lower():
                 m1 = bestFit[i]
-                print '  M1 = %.3f Msun' % bestFit[i]
+                print('  M1 = %.3f Msun' % bestFit[i])
             elif 'm2' in paramNames[i].lower():
                 m2 = bestFit[i]
-                print '  M2 = %.3f Msun' % bestFit[i]
+                print('  M2 = %.3f Msun' % bestFit[i])
             elif 'r1' in paramNames[i].lower():
                 r1 = bestFit[i]
-                print '  R1 = %.4f Rsun' % bestFit[i]
+                print('  R1 = %.4f Rsun' % bestFit[i])
             elif 'r2' in paramNames[i].lower():
                 r2 = bestFit[i]
-                print '  R2 = %.4f Rsun' % bestFit[i]
+                print('  R2 = %.4f Rsun' % bestFit[i])
             elif 'period' in paramNames[i].lower():
                 period = bestFit[i]
             elif 'bjd0' in paramNames[i].lower():
                 bjd0 = bestFit[i]
-                print 'BJD0 = %.8f' % bestFit[i]
+                print('BJD0 = %.8f' % bestFit[i])
             elif 'eccn' in paramNames[i].lower():
                 eccn = bestFit[i]
-                print '   e = %.3f' % bestFit[i]
+                print('   e = %.3f' % bestFit[i])
             elif 'omega' in paramNames[i].lower():
                 omega = bestFit[i]
-                print '   w = %.3f deg' % bestFit[i]
+                print('   w = %.3f deg' % bestFit[i])
             elif 'inclination' in paramNames[i].lower():
                 inclination = bestFit[i]
-                print '   i = %.3f deg' % bestFit[i]
+                print('   i = %.3f deg' % bestFit[i])
         flux = bestFit[-1]
-        print ''
+        print('')
         tmodel = kepsim.transitModel(flux,m1,m2,r1,r2,period,inclination,bjd0,eccn,omega,depth,
                                      albedo,c1,c2,c3,c4,gamma,contamination,npt,time,exptime,
                                      dtype,eclipses,dopboost,tides)
@@ -472,7 +472,7 @@ def fitModel(params,paramNames,flux,m1,m2,r1,r2,period,bjd0,eccn,omega,inclinati
 
 # print fit
 
-    print '%4d %.5E %.5E' % (niter,aveDelta,chi2)
+    print('%4d %.5E %.5E' % (niter,aveDelta,chi2))
 
     return chi2
 

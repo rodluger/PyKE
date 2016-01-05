@@ -109,20 +109,20 @@ def kepstddev(infile,outfile,datacol,timescale,clobber,verbose,logfile,status,cm
     if status == 0:
         medcdpp = ones((len(cdpp)),dtype='float32') * median(cdpp[:])
 #        print '\nMedian %.1fhr standard deviation = %d ppm' % (timescale, median(stddev[:]))
-        print '\nStandard deviation = %d ppm' % astddev
+        print('\nStandard deviation = %d ppm' % astddev)
 
 # calculate median STDDEV
 
     if status == 0:
         medcdpp = ones((len(cdpp)),dtype='float32') * median(cdpp[:])
-        print 'Median %.1fhr CDPP = %d ppm' % (timescale, median(cdpp[:]))
+        print('Median %.1fhr CDPP = %d ppm' % (timescale, median(cdpp[:])))
 
 # calculate RMS STDDEV
 
     if status == 0:
         rms, status = kepstat.rms(cdpp,zeros(len(stddev)),logfile,verbose)
         rmscdpp = ones((len(cdpp)),dtype='float32') * rms
-        print '   RMS %.1fhr CDPP = %d ppm\n' % (timescale, rms)
+        print('   RMS %.1fhr CDPP = %d ppm\n' % (timescale, rms))
 
 # clean up x-axis unit
 

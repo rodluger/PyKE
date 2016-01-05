@@ -208,7 +208,7 @@ def kepregr(infile,outfile,datacol,kmethod,kneighb,plot,plotlab,
                       'ytick.labelsize': ticksize}
             rcParams.update(params)
         except:
-            print 'ERROR -- KEPREGR: install latex for scientific plotting'
+            print('ERROR -- KEPREGR: install latex for scientific plotting')
             status = 1
     if status == 0 and plot:
         pylab.figure(1,figsize=[xsize,ysize])

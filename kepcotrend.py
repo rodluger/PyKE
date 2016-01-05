@@ -872,7 +872,7 @@ def kepcotrendsc(infile,outfile,bvfile,listbv,fitmethod,fitpower,iterate,sigma,m
 		status = kepio.closefits(instr,logfile,verbose)
 
 		#print some results to screen:
-		print '      -----      '
+		print('      -----      ')
 		if iterate:
 			flux_fit = n_flux_masked[fittedmask]
 			sum_fit = bvsum_masked[fittedmask]
@@ -881,11 +881,11 @@ def kepcotrendsc(infile,outfile,bvfile,listbv,fitmethod,fitpower,iterate,sigma,m
 			flux_fit = n_flux_masked
 			sum_fit = bvsum_masked
 			err_fit = n_err_masked
-		print 'reduced chi2: ' + str(chi2_gtf(flux_fit,sum_fit,err_fit,len(flux_fit)-len(coeffs)))
-		print 'rms: ' + str(medflux*rms(flux_fit,sum_fit))
+		print('reduced chi2: ' + str(chi2_gtf(flux_fit,sum_fit,err_fit,len(flux_fit)-len(coeffs))))
+		print('rms: ' + str(medflux*rms(flux_fit,sum_fit)))
 		for i in range(len(coeffs)):
-			print 'Coefficient of CBV #%s: %s' %(i+1,coeffs[i])
-		print '      -----      '
+			print('Coefficient of CBV #%s: %s' %(i+1,coeffs[i]))
+		print('      -----      ')
 
 
 	# end time

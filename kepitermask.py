@@ -72,17 +72,17 @@ def kepitermask(infile,outfile,plotfile,column,row,timescale,nsig,stepsize,winsi
 # print target data
 
     if status == 0:
-        print ''
-        print '      KepID:  %s' % kepid
-        print ' RA (J2000):  %s' % ra
-        print 'Dec (J2000): %s' % dec
-        print '     KepMag:  %s' % kepmag
-        print '   SkyGroup:    %2s' % skygroup
-        print '     Season:    %2s' % str(season)
-        print '    Channel:    %2s' % channel
-        print '     Module:    %2s' % module
-        print '     Output:     %1s' % output
-        print ''
+        print('')
+        print('      KepID:  %s' % kepid)
+        print(' RA (J2000):  %s' % ra)
+        print('Dec (J2000): %s' % dec)
+        print('     KepMag:  %s' % kepmag)
+        print('   SkyGroup:    %2s' % skygroup)
+        print('     Season:    %2s' % str(season))
+        print('    Channel:    %2s' % channel)
+        print('     Module:    %2s' % module)
+        print('     Output:     %1s' % output)
+        print('')
 
 # read mask defintion data from TPF file
 
@@ -158,8 +158,8 @@ def kepitermask(infile,outfile,plotfile,column,row,timescale,nsig,stepsize,winsi
                 best_cdpp = trial_cdpp
                 best_median_cdpp = trial_med
                 maskmap[ypix,xpix] = 1.0
-            print maskmap
-            print i, best_median_cdpp
+            print(maskmap)
+            print(i, best_median_cdpp)
 
 # plot style
 
@@ -317,8 +317,8 @@ def AddPixelToAperture(time,flux,maskmap,lc,npoly,nsig,niter,winsize,stepsize,ti
         except:
             pass
 
-    print shape(maskmap)[0]
-    print shape(maskmap)[1]
+    print(shape(maskmap)[0])
+    print(shape(maskmap)[1])
     for j in range(shape(maskmap)[0]):
         for i in range(shape(maskmap)[1]):
             try:

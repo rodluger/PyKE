@@ -281,7 +281,7 @@ def fitPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,interp
     if status == 0:
         prf = zeros(shape(prfn[0]),dtype='float32')
         prfWeight = zeros((5),dtype='float32')
-        for i in xrange(5):
+        for i in range(5):
             prfWeight[i] = sqrt((column - crval1p[i])**2 + (row - crval2p[i])**2)
             if prfWeight[i] == 0.0:
                 prfWeight[i] = 1.0e6
@@ -349,8 +349,8 @@ def fitMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,i
     if status == 0:
         imgflux = empty((ydim,xdim))
         n = 0
-        for i in xrange(ydim):
-            for j in xrange(xdim):
+        for i in range(ydim):
+            for j in range(xdim):
                 imgflux[i,j] = flux[n]
                 n += 1
 
@@ -359,7 +359,7 @@ def fitMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,i
     if status == 0:
         prf = zeros(shape(prfn[0]),dtype='float32')
         prfWeight = zeros((5),dtype='float32')
-        for i in xrange(5):
+        for i in range(5):
             prfWeight[i] = sqrt((column - crval1p[i])**2 + (row - crval2p[i])**2)
             if prfWeight[i] == 0.0:
                 prfWeight[i] = 1.0e6
@@ -398,27 +398,27 @@ def fitMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,i
             f = fluxes.strip().split(',')
             y = rows.strip().split(',')
             x = columns.strip().split(',')
-            for i in xrange(len(f)):
+            for i in range(len(f)):
                 f[i] = float(f[i]) * numpy.nanmax(flux)
         except:
             f = fluxes
             y = rows
             x = columns
-        for i in xrange(len(f)):
+        for i in range(len(f)):
             try:
                 guess.append(float(f[i]))
             except:
                 message = 'ERROR -- KEPPRF: Fluxes must be floating point numbers'
                 status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(len(y)):
+            for i in range(len(y)):
                 try:
                     guess.append((float(y[i]) - datCenY) / cdelt2p[0])
                 except:
                     message = 'ERROR -- KEPPRF: Rows must be floating point numbers'
                     status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(len(x)):
+            for i in range(len(x)):
                 try:
                     guess.append((float(x[i]) - datCenX) / cdelt1p[0])
                 except:
@@ -455,7 +455,7 @@ def fitMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,i
         else:
             ans = fmin_powell(kepfunc.kepler_multi_prf_2d,guess,args=args,xtol=tolerance,
                               ftol=ftol,disp=False)
-            for i in xrange(nsrc):
+            for i in range(nsrc):
                 f.append(ans[i])
                 y.append(ans[nsrc+i])
                 x.append(ans[nsrc*2+i]) 
@@ -464,7 +464,7 @@ def fitMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,i
 
     if status == 0:
         prfMod = numpy.zeros((prfDimY+1,prfDimX+1))
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             prfTmp = shift(prf,[y[i],x[i]],order=1,mode='constant')
             prfTmp = prfTmp[prfY0:prfY0+prfDimY,prfX0:prfX0+prfDimX]
             prfMod = prfMod + prfTmp * f[i]
@@ -479,7 +479,7 @@ def fitMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,i
 # convert PRF pixels sizes to CCD pixel sizes
 
     if status == 0:
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             y[i] = y[i] * cdelt1p[0] + datCenY
             x[i] = x[i] * cdelt2p[0] + datCenX
 
@@ -498,8 +498,8 @@ def fitBackMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt
     if status == 0:
         imgflux = empty((ydim,xdim))
         n = 0
-        for i in xrange(ydim):
-            for j in xrange(xdim):
+        for i in range(ydim):
+            for j in range(xdim):
                 imgflux[i,j] = flux[n]
                 n += 1
 
@@ -508,7 +508,7 @@ def fitBackMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt
     if status == 0:
         prf = zeros(shape(prfn[0]),dtype='float32')
         prfWeight = zeros((5),dtype='float32')
-        for i in xrange(5):
+        for i in range(5):
             prfWeight[i] = sqrt((column - crval1p[i])**2 + (row - crval2p[i])**2)
             if prfWeight[i] == 0.0:
                 prfWeight[i] = 1.0e6
@@ -547,28 +547,28 @@ def fitBackMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt
             f = fluxes.strip().split(',')
             y = rows.strip().split(',')
             x = columns.strip().split(',')
-            for i in xrange(len(f)):
+            for i in range(len(f)):
                 f[i] = float(f[i]) * numpy.nanmax(flux)
         except:
             f = fluxes
             y = rows
             x = columns
         b = bkg
-        for i in xrange(len(f)):
+        for i in range(len(f)):
             try:
                 guess.append(float(f[i]))
             except:
                 message = 'ERROR -- KEPPRF: Fluxes must be floating point numbers'
                 status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(len(y)):
+            for i in range(len(y)):
                 try:
                     guess.append((float(y[i]) - datCenY) / cdelt2p[0])
                 except:
                     message = 'ERROR -- KEPPRF: Rows must be floating point numbers'
                     status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(len(x)):
+            for i in range(len(x)):
                 try:
                     guess.append((float(x[i]) - datCenX) / cdelt1p[0])
                 except:
@@ -593,7 +593,7 @@ def fitBackMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt
                 interpolation,verbose)
         ans = fmin_powell(kepfunc.kepler_bkg_multi_prf_2d,guess,args=args,xtol=tolerance,
                           ftol=ftol,disp=False)
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             f.append(ans[i])
             y.append(ans[nsrc+i])
             x.append(ans[nsrc*2+i]) 
@@ -603,7 +603,7 @@ def fitBackMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt
 
     if status == 0:
         prfMod = numpy.zeros((prfDimY+1,prfDimX+1))
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             prfTmp = shift(prf,[y[i],x[i]],order=1,mode='constant')
             prfTmp = prfTmp[prfY0:prfY0+prfDimY,prfX0:prfX0+prfDimX]
             prfMod = prfMod + prfTmp * f[i]
@@ -619,7 +619,7 @@ def fitBackMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt
 # convert PRF pixels sizes to CCD pixel sizes
 
     if status == 0:
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             y[i] = y[i] * cdelt1p[0] + datCenY
             x[i] = x[i] * cdelt2p[0] + datCenX
 
@@ -638,8 +638,8 @@ def fitFocusMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdel
     if status == 0:
         imgflux = empty((ydim,xdim))
         n = 0
-        for i in xrange(ydim):
-            for j in xrange(xdim):
+        for i in range(ydim):
+            for j in range(xdim):
                 imgflux[i,j] = flux[n]
                 n += 1
 
@@ -648,7 +648,7 @@ def fitFocusMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdel
     if status == 0:
         prf = zeros(shape(prfn[0]),dtype='float32')
         prfWeight = zeros((5),dtype='float32')
-        for i in xrange(5):
+        for i in range(5):
             prfWeight[i] = sqrt((column - crval1p[i])**2 + (row - crval2p[i])**2)
             if prfWeight[i] == 0.0:
                 prfWeight[i] = 1.0e6
@@ -687,7 +687,7 @@ def fitFocusMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdel
             f = fluxes.strip().split(',')
             y = rows.strip().split(',')
             x = columns.strip().split(',')
-            for i in xrange(len(f)):
+            for i in range(len(f)):
                 f[i] = float(f[i]) * numpy.nanmax(flux)
         except:
             f = fluxes
@@ -695,21 +695,21 @@ def fitFocusMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdel
             x = columns
         b = bkg
         w = wfac
-        for i in xrange(len(f)):
+        for i in range(len(f)):
             try:
                 guess.append(float(f[i]))
             except:
                 message = 'ERROR -- KEPPRF: Fluxes must be floating point numbers'
                 status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(len(y)):
+            for i in range(len(y)):
                 try:
                     guess.append((float(y[i]) - datCenY) / cdelt2p[0])
                 except:
                     message = 'ERROR -- KEPPRF: Rows must be floating point numbers'
                     status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(len(x)):
+            for i in range(len(x)):
                 try:
                     guess.append((float(x[i]) - datCenX) / cdelt1p[0])
                 except:
@@ -734,14 +734,14 @@ def fitFocusMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdel
         args = (imgflux,prf,cdelt1p[0],cdelt2p[0],datDimY,datDimX,interpolation,verbose)
         ans = fmin_powell(kepfunc.kepler_focus_multi_prf_2d,guess,args=args,xtol=tolerance,
                           ftol=ftol,disp=False)
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             f.append(ans[i])
             y.append(ans[nsrc+i])
             x.append(ans[nsrc*2+i]) 
         b = ans[nsrc*3]
         w = ans[nsrc*3+1]
         print(ans)
-        print(f,y,x,b,w)
+        print((f,y,x,b,w))
 
 # calculate best-fit model
 
@@ -753,7 +753,7 @@ def fitFocusMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdel
         DY = 0.0; DX = 0.0
         if int(prfDimY) % 2 == 0: DY = 1.0
         if int(prfDimX) % 2 == 0: DX = 1.0
-        print(w, prfDimY, prfDimX)
+        print((w, prfDimY, prfDimX))
         prfMod = zeros((prfDimY+DY,prfDimX+DX))
         for i in range(nsrc):
             prfTmp = shift(prf,[y[i]/w,x[i]/w],order=1,mode='constant')
@@ -770,7 +770,7 @@ def fitFocusMultiPRF(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdel
 # convert PRF pixels sizes to CCD pixel sizes
 
     if status == 0:
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             y[i] = y[i] * cdelt1p[0] * w + datCenY
             x[i] = x[i] * cdelt2p[0] * w + datCenX
 
@@ -790,8 +790,8 @@ def test(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,interpol
     if status == 0:
         imgflux = empty((ydim,xdim))
         n = 0
-        for i in xrange(ydim):
-            for j in xrange(xdim):
+        for i in range(ydim):
+            for j in range(xdim):
                 imgflux[i,j] = flux[n]
                 n += 1
 
@@ -800,7 +800,7 @@ def test(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,interpol
     if status == 0:
         prf = zeros(shape(prfn[0]),dtype='float32')
         prfWeight = zeros((5),dtype='float32')
-        for i in xrange(5):
+        for i in range(5):
             prfWeight[i] = sqrt((column - crval1p[i])**2 + (row - crval2p[i])**2)
             if prfWeight[i] == 0.0:
                 prfWeight[i] = 1.0e6
@@ -839,27 +839,27 @@ def test(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,interpol
             f = fluxes.strip().split(',')
             y = rows.strip().split(',')
             x = columns.strip().split(',')
-            for i in xrange(len(f)):
+            for i in range(len(f)):
                 f[i] = float(f[i]) * numpy.nanmax(flux)
         except:
             f = fluxes
             y = rows
             x = columns
-        for i in xrange(len(f)):
+        for i in range(len(f)):
             try:
                 guess.append(float(f[i]))
             except:
                 message = 'ERROR -- KEPPRF: Fluxes must be floating point numbers'
                 status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(len(y)):
+            for i in range(len(y)):
                 try:
                     guess.append((float(y[i]) - datCenY) / cdelt2p[0])
                 except:
                     message = 'ERROR -- KEPPRF: Rows must be floating point numbers'
                     status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(len(x)):
+            for i in range(len(x)):
                 try:
                     guess.append((float(x[i]) - datCenX) / cdelt1p[0])
                 except:
@@ -896,7 +896,7 @@ def test(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,interpol
         else:
             ans = fmin_powell(kepfunc.kepler_multi_prf_2d,guess,args=args,xtol=tolerance,
                               ftol=ftol,disp=False)
-            for i in xrange(nsrc):
+            for i in range(nsrc):
                 f.append(ans[i])
                 y.append(ans[nsrc+i])
                 x.append(ans[nsrc*2+i]) 
@@ -905,7 +905,7 @@ def test(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,interpol
 
     if status == 0:
         prfMod = numpy.zeros((prfDimY+1,prfDimX+1))
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             prfTmp = shift(prf,[y[i],x[i]],order=1,mode='constant')
             prfTmp = prfTmp[prfY0:prfY0+prfDimY,prfX0:prfX0+prfDimX]
             prfMod = prfMod + prfTmp * f[i]
@@ -920,7 +920,7 @@ def test(flux,ydim,xdim,column,row,prfn,crval1p,crval2p,cdelt1p,cdelt2p,interpol
 # convert PRF pixels sizes to CCD pixel sizes
 
     if status == 0:
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             y[i] = y[i] * cdelt1p[0] + datCenY
             x[i] = x[i] * cdelt2p[0] + datCenX
 

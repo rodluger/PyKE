@@ -1,4 +1,4 @@
-import numpy, sys, time, pyfits, pylab, urllib
+import numpy, sys, time, pyfits, pylab, urllib.request, urllib.parse, urllib.error
 from numpy import *
 from pyfits import *
 from pylab import *
@@ -153,7 +153,7 @@ def keptrim(infile,outfile,kepid,column,row,imsize,clobber,verbose,logfile,statu
         hdu0 = pyfits.PrimaryHDU()
         for i in range(len(cards0)):
             try:
-                if cards0[i].key not in hdu0.header.keys():
+                if cards0[i].key not in list(hdu0.header.keys()):
                     hdu0.header.update(cards0[i].key, cards0[i].value, cards0[i].comment)
                 else:
                     hdu0.header.cards[cards0[i].key].comment = cards0[i].comment
@@ -185,7 +185,7 @@ def keptrim(infile,outfile,kepid,column,row,imsize,clobber,verbose,logfile,statu
         hdu1 = new_table(cols)
         for i in range(len(cards1)):
             try:
-                if cards1[i].key not in hdu1.header.keys():
+                if cards1[i].key not in list(hdu1.header.keys()):
                     hdu1.header.update(cards1[i].key, cards1[i].value, cards1[i].comment)
                 else:
                     hdu1.header.cards[cards1[i].key].comment = cards1[i].comment
@@ -223,7 +223,7 @@ def keptrim(infile,outfile,kepid,column,row,imsize,clobber,verbose,logfile,statu
         hdu2 = ImageHDU(maskmap)
         for i in range(len(cards2)):
             try:
-                if cards2[i].key not in hdu2.header.keys():
+                if cards2[i].key not in list(hdu2.header.keys()):
                     hdu2.header.update(cards2[i].key, cards2[i].value, cards2[i].comment)
                 else:
                     hdu2.header.cards[cards2[i].key].comment = cards2[i].comment
@@ -269,7 +269,7 @@ def FOVKepID(id):
 # retrieve results from MAST
 
     out = ''
-    lines = urllib.urlopen(url)
+    lines = urllib.request.urlopen(url)
     for line in lines:
         line = line.strip()
         if (len(line) > 0 and 

@@ -81,14 +81,14 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
             f = fluxes.strip().split(',')
             x = columns.strip().split(',')
             y = rows.strip().split(',')
-            for i in xrange(len(f)):
+            for i in range(len(f)):
                 f[i] = float(f[i])
         except:
             f = fluxes
             x = columns
             y = rows
         nsrc = len(f)
-        for i in xrange(nsrc):
+        for i in range(nsrc):
             try:
                 guess.append(float(f[i]))
             except:
@@ -100,14 +100,14 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
                 message += 'fluxes must have the same number of sources'
                 status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(nsrc):
+            for i in range(nsrc):
                 try:
                     guess.append(float(x[i]))
                 except:
                     message = 'ERROR -- KEPPRF: Columns must be floating point numbers'
                     status = kepmsg.err(logfile,message,verbose)
         if status == 0:
-            for i in xrange(nsrc):
+            for i in range(nsrc):
                 try:
                     guess.append(float(y[i]))
                 except:
@@ -195,15 +195,15 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
 
     if status == 0 and verbose:
         print('')
-        print('      KepID:  %s' % kepid)
-        print(' RA (J2000):  %s' % ra)
-        print('Dec (J2000): %s' % dec)
-        print('     KepMag:  %s' % kepmag)
-        print('   SkyGroup:    %2s' % skygroup)
-        print('     Season:    %2s' % str(season))
-        print('    Channel:    %2s' % channel)
-        print('     Module:    %2s' % module)
-        print('     Output:     %1s' % output)
+        print(('      KepID:  %s' % kepid))
+        print((' RA (J2000):  %s' % ra))
+        print(('Dec (J2000): %s' % dec))
+        print(('     KepMag:  %s' % kepmag))
+        print(('   SkyGroup:    %2s' % skygroup))
+        print(('     Season:    %2s' % str(season)))
+        print(('    Channel:    %2s' % channel))
+        print(('     Module:    %2s' % module))
+        print(('     Output:     %1s' % output))
         print('')
 
 # determine suitable PRF calibration file
@@ -243,7 +243,7 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
     if status == 0:
         prf = zeros(shape(prfn[0]),dtype='float32')
         prfWeight = zeros((5),dtype='float32')
-        for i in xrange(5):
+        for i in range(5):
             prfWeight[i] = sqrt((column - crval1p[i])**2 + (row - crval2p[i])**2)
             if prfWeight[i] == 0.0:
                 prfWeight[i] = 1.0e6
@@ -284,8 +284,8 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
         barytime += bjdref
         tstart,tstop,status = kepio.timeranges(ranges,logfile,verbose)
         incl = numpy.zeros((len(barytime)),dtype='int')
-        for rownum in xrange(len(barytime)):
-            for winnum in xrange(len(tstart)):
+        for rownum in range(len(barytime)):
+            for winnum in range(len(tstart)):
                 if barytime[rownum] >= tstart[winnum] and \
                         barytime[rownum] <= tstop[winnum] and \
                         (qual[rownum] == 0 or qualflags) and \
@@ -309,7 +309,7 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
         pc1 = zeros((nincl),'float32')
         pc2 = zeros((nincl),'float32')
         qua = zeros((nincl),'float32')
-        for rownum in xrange(len(barytime)):
+        for rownum in range(len(barytime)):
             if incl[rownum] == 1:
                 tim[n] = barytime[rownum]
                 tco[n] = tcorr[rownum]
@@ -352,7 +352,7 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
 
     if status == 0:# and not cmdLine:
         oldtime = 0.0
-        for rownum in xrange(numpy.min([80,len(barytime)])):
+        for rownum in range(numpy.min([80,len(barytime)])):
             try:
                 if barytime[rownum] - oldtime > 0.5:
                     ftol = 1.0e-10; xtol = 1.0e-10
@@ -378,7 +378,7 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
                 errp = errpixels[cad1:nincl,:]
                 progress = numpy.arange(cad1,nincl)
             try:
-                args = itertools.izip(fluxp,errp,itertools.repeat(DATx),itertools.repeat(DATy),
+                args = zip(fluxp,errp,itertools.repeat(DATx),itertools.repeat(DATy),
                                       itertools.repeat(nsrc),itertools.repeat(border),itertools.repeat(xx),
                                       itertools.repeat(yy),itertools.repeat(PRFx),itertools.repeat(PRFy),
                                       itertools.repeat(splineInterpolation),itertools.repeat(guess),
@@ -408,7 +408,7 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
     if status == 0 and not cmdLine:
         oldtime = 0.0; ans = []
 #        for rownum in xrange(1,10):
-        for rownum in xrange(nincl):
+        for rownum in range(nincl):
             proctime = time.time()
             try:
                 if barytime[rownum] - oldtime > 0.5:
@@ -532,7 +532,7 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
         for j in range(nsrc):
             hdu0 = pyfits.PrimaryHDU()
             for i in range(len(cards0)):
-                if cards0[i].key not in hdu0.header.keys():
+                if cards0[i].key not in list(hdu0.header.keys()):
                     hdu0.header.update(cards0[i].key, cards0[i].value, cards0[i].comment)
                 else:
                     hdu0.header.cards[cards0[i].key].comment = cards0[i].comment
@@ -564,7 +564,7 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
                             col12,col13,col14,col15,col16,col17,col18,col19])
             hdu1 = new_table(cols)
             for i in range(len(cards1)):
-                if (cards1[i].key not in hdu1.header.keys() and
+                if (cards1[i].key not in list(hdu1.header.keys()) and
                     cards1[i].key[:4] not in ['TTYP','TFOR','TUNI','TDIS','TDIM','WCAX','1CTY',
                                               '2CTY','1CRP','2CRP','1CRV','2CRV','1CUN','2CUN',
                                               '1CDE','2CDE','1CTY','2CTY','1CDL','2CDL','11PC',
@@ -576,7 +576,7 @@ def kepprfphot(infile,outroot,columns,rows,fluxes,border,background,focus,prfdir
 
             hdu2 = ImageHDU(maskmap)
             for i in range(len(cards2)):
-                if cards2[i].key not in hdu2.header.keys():
+                if cards2[i].key not in list(hdu2.header.keys()):
                     hdu2.header.update(cards2[i].key, cards2[i].value, cards2[i].comment)
                 else:
                     hdu2.header.cards[cards2[i].key].comment = cards2[i].comment

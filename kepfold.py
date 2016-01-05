@@ -331,7 +331,7 @@ def kepfold(infile,outfile,period,phasezero,bindata,binmethod,threshold,niter,nb
         instr[1].header.cards['TTYPE'+str(len(instr[1].columns))].comment = 'column title: phase'
         instr[1].header.cards['TFORM'+str(len(instr[1].columns))].comment = 'data type: float32'
         for i in range(len(incards)):
-            if incards[i].key not in instr[1].header.keys():
+            if incards[i].key not in list(instr[1].header.keys()):
                 instr[1].header.update(incards[i].key, incards[i].value, incards[i].comment)
             else:
                 instr[1].header.cards[incards[i].key].comment = incards[i].comment
@@ -479,7 +479,7 @@ def kepfold(infile,outfile,period,phasezero,bindata,binmethod,threshold,niter,nb
                       'ytick.labelsize': ticksize}
             pylab.rcParams.update(params)
         except:
-            print 'ERROR -- KEPFOLD: install latex for scientific plotting'
+            print('ERROR -- KEPFOLD: install latex for scientific plotting')
             status = 1
     if status == 0 and plottype != 'none':
 	pylab.figure(figsize=[17,7])

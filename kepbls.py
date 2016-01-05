@@ -125,7 +125,7 @@ def kepbls(infile,outfile,datacol,errcol,minper,maxper,mindur,maxdur,nsearch,
         dPeriod = (maxper - minper) / nsearch
         trialPeriods = numpy.arange(minper,maxper+dPeriod,dPeriod,dtype='float32')
         complete = 0
-        print ' '
+        print(' ')
         for trialPeriod in trialPeriods:
             fracComplete = float(complete) / float(len(trialPeriods) - 1) * 100.0 
             txt  = '\r' 
@@ -205,7 +205,7 @@ def kepbls(infile,outfile,datacol,errcol,minper,maxper,mindur,maxdur,nsearch,
         srMax /= bestSr
         transitDuration *= trialPeriods / 24.0 
         BJD0 = numpy.array(transitPhase * trialPeriods / nbins,dtype='float64') + intime[0] - 2454833.0
-        print '\n'
+        print('\n')
 
 # clean up x-axis unit
 
@@ -336,10 +336,10 @@ def kepbls(infile,outfile,datacol,errcol,minper,maxper,mindur,maxdur,nsearch,
 # print best trial period results
 
     if status == 0:
-        print '      Best trial period = %.5f days' % trialPeriods[bestTrial]
-        print '    Time of mid-transit = BJD %.5f' % (BJD0[bestTrial] + 2454833.0)
-        print '       Transit duration = %.5f hours' % transitDuration[bestTrial]
-        print ' Maximum signal residue = %.4g \n' % (srMax[bestTrial] * bestSr)
+        print('      Best trial period = %.5f days' % trialPeriods[bestTrial])
+        print('    Time of mid-transit = BJD %.5f' % (BJD0[bestTrial] + 2454833.0))
+        print('       Transit duration = %.5f hours' % transitDuration[bestTrial])
+        print(' Maximum signal residue = %.4g \n' % (srMax[bestTrial] * bestSr))
 
 # end time
 

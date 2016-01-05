@@ -5,7 +5,7 @@ from numpy import *
 from scipy import *
 from pyfits import *
 import kepio, kepmsg, kepkey, kepplot, kepfit, keparray, kepstat
-import sys, time, re, math, glob, urllib
+import sys, time, re, math, glob, urllib.request, urllib.parse, urllib.error
 
 # -----------------------------------------------------------
 # core code
@@ -97,18 +97,18 @@ def kepfield(infile,plotfile,rownum,imscale,colmap,lcolor,srctab,verbose,logfile
 # print target data
 
     if status == 0 and verbose:
-        print ''
-        print '      KepID: %s' % kepid
-        print '        BJD: %.2f' % (barytime[rownum-1] + 2454833.0)
-        print ' RA (J2000): %s' % ra
-        print 'Dec (J2000):  %s' % dec
-        print '     KepMag:  %s' % kepmag
-        print '   SkyGroup:   %2s' % skygroup
-        print '     Season:   %2s' % str(season)
-        print '    Channel:   %2s' % channel
-        print '     Module:   %2s' % module
-        print '     Output:    %1s' % output
-        print ''
+        print('')
+        print('      KepID: %s' % kepid)
+        print('        BJD: %.2f' % (barytime[rownum-1] + 2454833.0))
+        print(' RA (J2000): %s' % ra)
+        print('Dec (J2000):  %s' % dec)
+        print('     KepMag:  %s' % kepmag)
+        print('   SkyGroup:   %2s' % skygroup)
+        print('     Season:   %2s' % str(season))
+        print('    Channel:   %2s' % channel)
+        print('     Module:   %2s' % module)
+        print('     Output:    %1s' % output)
+        print('')
 
 # is this a good row with finite timestamp and pixels?
 
@@ -227,18 +227,18 @@ def kepfield(infile,plotfile,rownum,imscale,colmap,lcolor,srctab,verbose,logfile
 # list sources
 
     if status == 0:
-        print 'Column    Row  RA J2000 Dec J2000    Kp    Kepler ID'
-        print '----------------------------------------------------'
+        print('Column    Row  RA J2000 Dec J2000    Kp    Kepler ID')
+        print('----------------------------------------------------')
         for i in range(len(sx)-1,-1,-1):
             if sx[i] >= xmin and sx[i] < xmax and sy[i] >= ymin and sy[i] < ymax:
                 if kepid[i] != 0 and kepmag[i] != 0.0:
-                    print '%6.1f %6.1f %9.5f  %8.5f %5.2f KIC %d' % \
-                        (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i]),float(kepmag[i]),int(kepid[i]))
+                    print('%6.1f %6.1f %9.5f  %8.5f %5.2f KIC %d' % \
+                        (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i]),float(kepmag[i]),int(kepid[i])))
                 elif kepid[i] != 0 and kepmag[i] == 0.0:
-                    print '%6.1f %6.1f %9.5f  %8.5f       KIC %d' % \
-                        (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i]),int(kepid[i]))
+                    print('%6.1f %6.1f %9.5f  %8.5f       KIC %d' % \
+                        (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i]),int(kepid[i])))
                 else:
-                    print '%6.1f %6.1f %9.5f  %8.5f' % (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i]))
+                    print('%6.1f %6.1f %9.5f  %8.5f' % (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i])))
 
 # plot sources
 
@@ -280,7 +280,7 @@ def cmap_plot(cmdLine):
     maps.sort()
     l=len(maps)+1
     for i, m in enumerate(maps):
-        print m
+        print(m)
         subplot(l,1,i+1)
         pylab.setp(pylab.gca(),xticklabels=[],xticks=[],yticklabels=[],yticks=[])
         imshow(a,aspect='auto',cmap=get_cmap(m),origin="lower")
@@ -325,7 +325,7 @@ def MASTRADec(ra,dec,darcsec,srctab):
 
     if srctab:
         try:
-            lines = urllib.urlopen(url)
+            lines = urllib.request.urlopen(url)
         except:
             message = 'WARNING -- KEPFIELD: Cannot retrieve data from MAST'
             status = kepmsg.warn(logfile,message)

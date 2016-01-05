@@ -83,7 +83,7 @@ def kephead(infile,outfile,keyname,clobber,verbose,logfile,status):
             prhead = False
             for i in range(nkeys):
                 if (keyname.upper() == 'ALL' or \
-                        keyname.upper() in instr[hdu].header.keys()[i]):
+                        keyname.upper() in list(instr[hdu].header.keys())[i]):
                     prhead = True
             if prhead:
                 dashes = ''
@@ -99,8 +99,8 @@ def kephead(infile,outfile,keyname,clobber,verbose,logfile,status):
 
             for i in range(nkeys):
                 if ((keyname.upper() == 'ALL' or \
-                         keyname.upper() in instr[hdu].header.keys()[i]) and \
-                        'COMMENT' not in instr[hdu].header.keys()[i]):
+                         keyname.upper() in list(instr[hdu].header.keys())[i]) and \
+                        'COMMENT' not in list(instr[hdu].header.keys())[i]):
                     kepmsg.log(ofile,str(keylist[i]),True)
             kepmsg.log(ofile,'',True)
 

@@ -407,7 +407,7 @@ def keppca(infile,maskfile,outfile,components,plotpca,nreps,clobber,verbose,logf
     if status == 0:
         hdu0 = pyfits.PrimaryHDU()
         for i in range(len(cards0)):
-            if cards0[i].keyword not in hdu0.header.keys():
+            if cards0[i].keyword not in list(hdu0.header.keys()):
                 hdu0.header[cards0[i].keyword] = (cards0[i].value, cards0[i].comment)
             else:
                 hdu0.header.cards[cards0[i].keyword].comment = cards0[i].comment
@@ -508,7 +508,7 @@ def keppca(infile,maskfile,outfile,components,plotpca,nreps,clobber,verbose,logf
         hdu1.header['TFORM22'] = ('E','column format: float32')
         hdu1.header['EXTNAME'] = ('LIGHTCURVE','name of extension')
         for i in range(len(cards1)):
-            if (cards1[i].keyword not in hdu1.header.keys() and
+            if (cards1[i].keyword not in list(hdu1.header.keys()) and
                 cards1[i].keyword[:4] not in ['TTYP','TFOR','TUNI','TDIS','TDIM','WCAX','1CTY',
                                           '2CTY','1CRP','2CRP','1CRV','2CRV','1CUN','2CUN',
                                           '1CDE','2CDE','1CTY','2CTY','1CDL','2CDL','11PC',
@@ -521,7 +521,7 @@ def keppca(infile,maskfile,outfile,components,plotpca,nreps,clobber,verbose,logf
     if status == 0:
         hdu2 = ImageHDU(maskmap)
         for i in range(len(cards2)):
-            if cards2[i].keyword not in hdu2.header.keys():
+            if cards2[i].keyword not in list(hdu2.header.keys()):
                 hdu2.header[cards2[i].keyword] = (cards2[i].value, cards2[i].comment)
             else:
                 hdu2.header.cards[cards2[i].keyword].comment = cards2[i].comment

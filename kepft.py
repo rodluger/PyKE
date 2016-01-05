@@ -152,7 +152,7 @@ def kepft(infile,outfile,fcol,pmin,pmax,nfreq,plot,clobber,verbose,logfile,statu
                       'ytick.labelsize': ticksize}
             rcParams.update(params)
         except:
-            print 'ERROR -- KEPFT: install latex for scientific plotting'
+            print('ERROR -- KEPFT: install latex for scientific plotting')
             status = 1
 
     if status == 0 and plot:

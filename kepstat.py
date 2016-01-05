@@ -373,7 +373,7 @@ def savitzky_golay(y,window_size,order,deriv=0):
 # precompute fit coefficients
 
     if status == 0:
-        order_range = range(order + 1)
+        order_range = list(range(order + 1))
         half_window = (window_size - 1) / 2
         b = mat([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
         m = linalg.pinv(b).A[deriv]

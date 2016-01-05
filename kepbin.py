@@ -182,7 +182,7 @@ def do_plot(date,flux,status=0):
 			'ytick.labelsize': 16}
 		rcParams.update(params)
 	except:
-		print 'ERROR -- KEPCLIP: install latex for scientific plotting'
+		print('ERROR -- KEPCLIP: install latex for scientific plotting')
 		status = 1
 
 	if status == 0:

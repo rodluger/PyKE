@@ -121,7 +121,7 @@ def kepaddconstant(infile,outfile,datacol,constant,constantval,sign
 		
 		#subtractor he just refers to the number that will be added/subtracted
 		#divided or multiplied
-		if isinstance(constantval,(long,int,float)) and constant == 'None':
+		if isinstance(constantval,(int,float)) and constant == 'None':
 			subtractor = float(constantval)
 		elif constant.lower() == 'median':
 			subtractor = float(median(lc_flux[isfinite(lc_flux)]))

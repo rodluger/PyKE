@@ -167,7 +167,7 @@ def kepclip(infile,outfile,ranges,plot,plotcol,clobber,verbose,logfile,status,cm
                       'ytick.labelsize': ticksize}
             rcParams.update(params)
         except:
-            print 'ERROR -- KEPCLIP: install latex for scientific plotting'
+            print('ERROR -- KEPCLIP: install latex for scientific plotting')
             status = 1
 
 # clear window, plot box

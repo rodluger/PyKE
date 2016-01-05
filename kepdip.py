@@ -288,7 +288,7 @@ def kepdip(infile,outfile,datacol,dmethod,kneighb,hstd,plot,plotlab,
                       'ytick.labelsize': ticksize}
             rcParams.update(params)
         except:
-            print 'ERROR -- KEPDIP: install latex for scientific plotting'
+            print('ERROR -- KEPDIP: install latex for scientific plotting')
             status = 1
     if status == 0 and plot:
         pylab.figure(1,figsize=[xsize,ysize])
