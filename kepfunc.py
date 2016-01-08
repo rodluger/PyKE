@@ -323,6 +323,10 @@ def PRF2DET(flux,OBJx,OBJy,DATx,DATy,wx,wy,a,splineInterpolation):
 
 # where in the pixel is the source position?
 
+# LUGER: The following lines look horribly, horribly bugged.
+# FRCx and FRCy get rewritten each iteration of the for loop,
+# so only the last source makes it into PRFfit.
+
     PRFfit = zeros((size(DATy),size(DATx)))
     for i in range(len(flux)):
         FRCx,INTx = modf(OBJx[i])

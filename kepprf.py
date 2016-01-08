@@ -507,21 +507,6 @@ def kepprf(infile,plotfile,rownum,columns,rows,fluxes,border,background,focus,pr
 # plot style
 
     if status == 0:
-        try:
-            params = {'backend': 'png',
-                      'axes.linewidth': 2.5,
-                      'axes.labelsize': 28,
-                      'axes.font': 'sans-serif',
-                      'axes.fontweight' : 'bold',
-                      'text.fontsize': 12,
-                      'legend.fontsize': 12,
-                      'xtick.labelsize': 20,
-                      'ytick.labelsize': 20,
-                      'xtick.major.pad': 6,
-                      'ytick.major.pad': 6}
-            pylab.rcParams.update(params)
-        except:
-            pass
         pylab.figure(figsize=[12,10])
         pylab.clf()
         plotimage(imgdat_pl,zminfl,zmaxfl,1,row,column,xdim,ydim,0.07,0.53,'observation',colmap,labcol)
@@ -694,41 +679,41 @@ def cmap_plot(cmdLine):
 
 # -----------------------------------------------------------
 # main
-
-if '--shell' in sys.argv:
-    import argparse
+if __name__ == '__main__':
+  if '--shell' in sys.argv:
+      import argparse
     
-    parser = argparse.ArgumentParser(description='Fitting PRF model to Target Pixel image')
-    parser.add_argument('--shell', action='store_true', help='Are we running from the shell?')
+      parser = argparse.ArgumentParser(description='Fitting PRF model to Target Pixel image')
+      parser.add_argument('--shell', action='store_true', help='Are we running from the shell?')
 
-    parser.add_argument('infile', help='Name of input target pixel file', type=str)
-    parser.add_argument('plotfile', help='Name of output PNG plot file', type=str)
-    parser.add_argument('--rownum', '-r', default=2200, help='Row number of image stored in infile', dest='rownum', type=int)
-    parser.add_argument('--columns', help='Column number of each source to be fit', type=str)
-    parser.add_argument('--rows', help='Row number of each source to be fit', type=str)
-    parser.add_argument('--fluxes', help='Relative flux of each source to be fit', type=str)
-    parser.add_argument('--border', '-b', help='Order of background polynmial fit', default=1, dest='border', type=int)
-    parser.add_argument('--background', action='store_true', help='Fit background?', default=False)
-    parser.add_argument('--focus', action='store_true', help='Fit focus changes?', default=False)
-    parser.add_argument('--prfdir', help='Folder containing Point Response Function FITS files', type=str)
-    parser.add_argument('--xtol', '-x', default=1.0e-4, help='Fit parameter tolerance', dest='xtol', type=float)
-    parser.add_argument('--ftol', '-f', default=1.0, help='Fit minimization tolerance', dest='ftol', type=float)
-    parser.add_argument('--imscale', '-i', help='Type of image intensity scale', default='linear', dest='imscale', type=str,choices=['linear','logarithmic','squareroot'])
-    parser.add_argument('--colmap', '-c', help='Image colormap', default='YlOrBr', dest='cmap', type=str,choices=['Accent','Blues','BrBG','BuGn','BuPu','Dark2','GnBu','Greens','Greys','OrRd','Oranges','PRGn','Paired','Pastel1','Pastel2','PiYG','PuBu','PuBuGn','PuOr','PuRd','Purples','RdBu','RdGy','RdPu','RdYlBu','RdYlGn','Reds','Set1','Set2','Set3','Spectral','YlGn','YlGnBu','YlOrBr','YlOrRd','afmhot','autumn','binary','bone','brg','bwr','cool','copper','flag','gist_earth','gist_gray','gist_heat','gist_ncar','gist_rainbow','gist_yarg','gnuplot','gnuplot2','gray','hot','hsv','jet','ocean','pink','prism','rainbow','seismic','spectral','spring','summer','terrain','winter','browse'])
-    parser.add_argument('--labcol', help='Label color', default='k', type=str)
-    parser.add_argument('--apercol', help='Aperture color', default='b', type=str)
-    parser.add_argument('--plot', action='store_true', help='Plot fit results?', default=False)
-    parser.add_argument('--verbose', action='store_true', help='Write to a log file?')
-    parser.add_argument('--logfile', '-l', default='kepprfphot.log', help='Name of ascii log file', dest='logfile', type=str)
-    parser.add_argument('--status', '-e', help='Exit status (0=good)', default=0, dest='status', type=int)
+      parser.add_argument('infile', help='Name of input target pixel file', type=str)
+      parser.add_argument('plotfile', help='Name of output PNG plot file', type=str)
+      parser.add_argument('--rownum', '-r', default=2200, help='Row number of image stored in infile', dest='rownum', type=int)
+      parser.add_argument('--columns', help='Column number of each source to be fit', type=str)
+      parser.add_argument('--rows', help='Row number of each source to be fit', type=str)
+      parser.add_argument('--fluxes', help='Relative flux of each source to be fit', type=str)
+      parser.add_argument('--border', '-b', help='Order of background polynmial fit', default=1, dest='border', type=int)
+      parser.add_argument('--background', action='store_true', help='Fit background?', default=False)
+      parser.add_argument('--focus', action='store_true', help='Fit focus changes?', default=False)
+      parser.add_argument('--prfdir', help='Folder containing Point Response Function FITS files', type=str)
+      parser.add_argument('--xtol', '-x', default=1.0e-4, help='Fit parameter tolerance', dest='xtol', type=float)
+      parser.add_argument('--ftol', '-f', default=1.0, help='Fit minimization tolerance', dest='ftol', type=float)
+      parser.add_argument('--imscale', '-i', help='Type of image intensity scale', default='linear', dest='imscale', type=str,choices=['linear','logarithmic','squareroot'])
+      parser.add_argument('--colmap', '-c', help='Image colormap', default='YlOrBr', dest='cmap', type=str,choices=['Accent','Blues','BrBG','BuGn','BuPu','Dark2','GnBu','Greens','Greys','OrRd','Oranges','PRGn','Paired','Pastel1','Pastel2','PiYG','PuBu','PuBuGn','PuOr','PuRd','Purples','RdBu','RdGy','RdPu','RdYlBu','RdYlGn','Reds','Set1','Set2','Set3','Spectral','YlGn','YlGnBu','YlOrBr','YlOrRd','afmhot','autumn','binary','bone','brg','bwr','cool','copper','flag','gist_earth','gist_gray','gist_heat','gist_ncar','gist_rainbow','gist_yarg','gnuplot','gnuplot2','gray','hot','hsv','jet','ocean','pink','prism','rainbow','seismic','spectral','spring','summer','terrain','winter','browse'])
+      parser.add_argument('--labcol', help='Label color', default='k', type=str)
+      parser.add_argument('--apercol', help='Aperture color', default='b', type=str)
+      parser.add_argument('--plot', action='store_true', help='Plot fit results?', default=False)
+      parser.add_argument('--verbose', action='store_true', help='Write to a log file?')
+      parser.add_argument('--logfile', '-l', default='kepprfphot.log', help='Name of ascii log file', dest='logfile', type=str)
+      parser.add_argument('--status', '-e', help='Exit status (0=good)', default=0, dest='status', type=int)
 
-    args = parser.parse_args()
-    cmdLine=True
-    kepprf(args.infile,args.plotfile,args.rownum,args.columns,args.rows,args.fluxes,args.border,
-           args.background,args.focus,args.prfdir,args.xtol,args.ftol,args.imscale,args.cmap,
-           args.labcol,args.apercol,args.plot,args.verbose,args.logfile,args.status,cmdLine)
+      args = parser.parse_args()
+      cmdLine=True
+      kepprf(args.infile,args.plotfile,args.rownum,args.columns,args.rows,args.fluxes,args.border,
+             args.background,args.focus,args.prfdir,args.xtol,args.ftol,args.imscale,args.cmap,
+             args.labcol,args.apercol,args.plot,args.verbose,args.logfile,args.status,cmdLine)
     
-else:
-    from pyraf import iraf
-    parfile = iraf.osfn("kepler$kepprf.par")
-    t = iraf.IrafTaskFactory(taskname="kepprf", value=parfile, function=kepprf)
+  else:
+      from pyraf import iraf
+      parfile = iraf.osfn("kepler$kepprf.par")
+      t = iraf.IrafTaskFactory(taskname="kepprf", value=parfile, function=kepprf)

@@ -310,7 +310,7 @@ def MASTRADec(ra,dec,darcsec,srctab):
     ra2 = ra + darcsec / cos(dec * pi / 180)
     dec1 = dec - darcsec
     dec2 = dec + darcsec
-
+ 
 # build mast query
 
     url  = 'http://archive.stsci.edu/kepler/kepler_fov/search.php?'
@@ -341,6 +341,13 @@ def MASTRADec(ra,dec,darcsec,srctab):
     dec = []
     for line in lines:
         line = line.strip()
+        
+        # Python 3 hack
+        try:
+          'Kepler' in line
+        except:
+          line = line.decode('ascii')
+        
         if (len(line) > 0 and 
             'Kepler' not in line and 
             'integer' not in line and
@@ -393,30 +400,30 @@ def sex2dec(ra,dec):
 
 # -----------------------------------------------------------
 # main
-
-if '--shell' in sys.argv:
-    import argparse
+if __name__ == '__main__':
+  if '--shell' in sys.argv:
+      import argparse
     
-    parser = argparse.ArgumentParser(description='Displaying the target mask and local field sources')
-    parser.add_argument('--shell', action='store_true', help='Are we running from the shell?')
+      parser = argparse.ArgumentParser(description='Displaying the target mask and local field sources')
+      parser.add_argument('--shell', action='store_true', help='Are we running from the shell?')
 
-    parser.add_argument('infile', help='Name of input target pixel file', type=str)
-    parser.add_argument('--plotfile', '-p', help='Name of output PNG plot file', default='None', dest='plotfile', type=str)
-    parser.add_argument('--rownum', '-r', default=2200, help='Row number of image stored in infile', dest='rownum', type=int)
-    parser.add_argument('--imscale', '-i', help='Type of image intensity scale', default='linear', dest='imscale', type=str,choices=['linear','logarithmic','squareroot'])
-    parser.add_argument('--cmap', '-c', help='Image colormap', default='YlOrBr', dest='cmap', type=str,choices=['Accent','Blues','BrBG','BuGn','BuPu','Dark2','GnBu','Greens','Greys','OrRd','Oranges','PRGn','Paired','Pastel1','Pastel2','PiYG','PuBu','PuBuGn','PuOr','PuRd','Purples','RdBu','RdGy','RdPu','RdYlBu','RdYlGn','Reds','Set1','Set2','Set3','Spectral','YlGn','YlGnBu','YlOrBr','YlOrRd','afmhot','autumn','binary','bone','brg','bwr','cool','copper','flag','gist_earth','gist_gray','gist_heat','gist_ncar','gist_rainbow','gist_yarg','gnuplot','gnuplot2','gray','hot','hsv','jet','ocean','pink','prism','rainbow','seismic','spectral','spring','summer','terrain','winter','browse'])
-    parser.add_argument('--lcolor', default='#0000ff', help='HTML color of data line within plot', type=str)
-    parser.add_argument('--srctab', action='store_true', help='Extract data from target table at MAST?')
-    parser.add_argument('--verbose', action='store_true', help='Write to a log file?')
-    parser.add_argument('--logfile', '-l', default='kepfieldphot.log', help='Name of ascii log file', dest='logfile', type=str)
-    parser.add_argument('--status', '-e', help='Exit status (0=good)', default=0, dest='status', type=int)
+      parser.add_argument('infile', help='Name of input target pixel file', type=str)
+      parser.add_argument('--plotfile', '-p', help='Name of output PNG plot file', default='None', dest='plotfile', type=str)
+      parser.add_argument('--rownum', '-r', default=2200, help='Row number of image stored in infile', dest='rownum', type=int)
+      parser.add_argument('--imscale', '-i', help='Type of image intensity scale', default='linear', dest='imscale', type=str,choices=['linear','logarithmic','squareroot'])
+      parser.add_argument('--cmap', '-c', help='Image colormap', default='YlOrBr', dest='cmap', type=str,choices=['Accent','Blues','BrBG','BuGn','BuPu','Dark2','GnBu','Greens','Greys','OrRd','Oranges','PRGn','Paired','Pastel1','Pastel2','PiYG','PuBu','PuBuGn','PuOr','PuRd','Purples','RdBu','RdGy','RdPu','RdYlBu','RdYlGn','Reds','Set1','Set2','Set3','Spectral','YlGn','YlGnBu','YlOrBr','YlOrRd','afmhot','autumn','binary','bone','brg','bwr','cool','copper','flag','gist_earth','gist_gray','gist_heat','gist_ncar','gist_rainbow','gist_yarg','gnuplot','gnuplot2','gray','hot','hsv','jet','ocean','pink','prism','rainbow','seismic','spectral','spring','summer','terrain','winter','browse'])
+      parser.add_argument('--lcolor', default='#0000ff', help='HTML color of data line within plot', type=str)
+      parser.add_argument('--srctab', action='store_true', help='Extract data from target table at MAST?')
+      parser.add_argument('--verbose', action='store_true', help='Write to a log file?')
+      parser.add_argument('--logfile', '-l', default='kepfieldphot.log', help='Name of ascii log file', dest='logfile', type=str)
+      parser.add_argument('--status', '-e', help='Exit status (0=good)', default=0, dest='status', type=int)
 
-    args = parser.parse_args()
-    cmdLine=True
-    kepfield(args.infile,args.plotfile,args.rownum,args.imscale,args.cmap,args.lcolor,args.srctab,
-             args.verbose,args.logfile,args.status,cmdLine)
+      args = parser.parse_args()
+      cmdLine=True
+      kepfield(args.infile,args.plotfile,args.rownum,args.imscale,args.cmap,args.lcolor,args.srctab,
+               args.verbose,args.logfile,args.status,cmdLine)
     
-else:
-    from pyraf import iraf
-    parfile = iraf.osfn("kepler$kepfield.par")
-    t = iraf.IrafTaskFactory(taskname="kepfield", value=parfile, function=kepfield)
+  else:
+      from pyraf import iraf
+      parfile = iraf.osfn("kepler$kepfield.par")
+      t = iraf.IrafTaskFactory(taskname="kepfield", value=parfile, function=kepfield)
