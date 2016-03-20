@@ -1,3 +1,8 @@
+import matplotlib as mpl
+mpl.use('Qt4Agg')
+import sys
+sys.path.insert(1, '/Users/rodrigo/src/kplr')
+import kplr
 from kepcrowd import GetPixelCrowding
 
 # This one is really messy.

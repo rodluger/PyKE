@@ -14,212 +14,205 @@ from scipy.interpolate import RectBivariateSpline, interp2d
 from scipy.ndimage import interpolation
 from scipy.ndimage.interpolation import shift, rotate
 
-columns = []
-rows = []
-fluxes = []
+# plot ccd with interactive source selection
+class kepfield(object):
+  
+    def __init__(self, infile, rownum = 0, imscale = 'linear', cmap = 'YlOrBr', 
+                 lcolor = 'k', acolor = 'b', query = True, logfile = 'kepcrowd.log', **kwargs):
+        
+        self.colrow = []
+        self.fluxes = []
+        self._text = []
+    
+        # hide warnings
+        np.seterr(all = "ignore") 
+    
+        # test log file
+        logfile = kepmsg.test(logfile)
+    
+        # info
+        hashline = '----------------------------------------------------------------------------'
+        kepmsg.log(logfile,hashline,False)
+        call = 'KEPFIELD -- '
+        call += 'infile='+infile+' '
+        call += 'rownum='+str(rownum)
+        kepmsg.log(logfile,call+'\n',False)
 
-# plot ccd
-def kepfield(infile, rownum = 0, imscale = 'linear', cmap = 'YlOrBr', 
-             lcolor = 'k', acolor = 'b', query = True, logfile = 'kepcrowd.log', **kwargs): 
-    '''
-    
-    '''
-    
-    global columns, rows, fluxes
-    
-    np.seterr(all = "ignore") 
-    
-    # test log file
-    logfile = kepmsg.test(logfile)
-    
-    # info
-    hashline = '----------------------------------------------------------------------------'
-    kepmsg.log(logfile,hashline,False)
-    call = 'KEPFIELD -- '
-    call += 'infile='+infile+' '
-    call += 'rownum='+str(rownum)
-    kepmsg.log(logfile,call+'\n',False)
+        try:
+            kepid, channel, skygroup, module, output, quarter, season, \
+                ra, dec, column, row, kepmag, xdim, ydim, barytime, status = \
+                kepio.readTPF(infile, 'TIME', logfile, False)
+        except:
+            message = 'ERROR -- KEPFIELD: is %s a Target Pixel File? ' % infile
+            kepmsg.err(logfile, message, False)
+            return "", "", "", None
 
-    # start time
-    kepmsg.clock('KEPFIELD started at',logfile,False)
-
-    try:
         kepid, channel, skygroup, module, output, quarter, season, \
-            ra, dec, column, row, kepmag, xdim, ydim, barytime, status = \
-            kepio.readTPF(infile, 'TIME', logfile, False)
-    except:
-        message = 'ERROR -- KEPFIELD: is %s a Target Pixel File? ' % infile
-        kepmsg.err(logfile, message, False)
-        return "", "", "", None
+            ra, dec, column, row, kepmag, xdim, ydim, tcorr, status = \
+            kepio.readTPF(infile,'TIMECORR',logfile,False)
 
-    kepid, channel, skygroup, module, output, quarter, season, \
-        ra, dec, column, row, kepmag, xdim, ydim, tcorr, status = \
-        kepio.readTPF(infile,'TIMECORR',logfile,False)
+        kepid, channel, skygroup, module, output, quarter, season, \
+            ra, dec, column, row, kepmag, xdim, ydim, cadno, status = \
+            kepio.readTPF(infile,'rownumNO',logfile,False)
 
-    kepid, channel, skygroup, module, output, quarter, season, \
-        ra, dec, column, row, kepmag, xdim, ydim, cadno, status = \
-        kepio.readTPF(infile,'rownumNO',logfile,False)
+        kepid, channel, skygroup, module, output, quarter, season, \
+            ra, dec, column, row, kepmag, xdim, ydim, fluxpixels, status = \
+            kepio.readTPF(infile,'FLUX',logfile,False)
 
-    kepid, channel, skygroup, module, output, quarter, season, \
-        ra, dec, column, row, kepmag, xdim, ydim, fluxpixels, status = \
-        kepio.readTPF(infile,'FLUX',logfile,False)
+        kepid, channel, skygroup, module, output, quarter, season, \
+            ra, dec, column, row, kepmag, xdim, ydim, errpixels, status = \
+            kepio.readTPF(infile,'FLUX_ERR',logfile,False)
 
-    kepid, channel, skygroup, module, output, quarter, season, \
-        ra, dec, column, row, kepmag, xdim, ydim, errpixels, status = \
-        kepio.readTPF(infile,'FLUX_ERR',logfile,False)
+        kepid, channel, skygroup, module, output, quarter, season, \
+            ra, dec, column, row, kepmag, xdim, ydim, qual, status = \
+            kepio.readTPF(infile,'QUALITY',logfile,False)
 
-    kepid, channel, skygroup, module, output, quarter, season, \
-        ra, dec, column, row, kepmag, xdim, ydim, qual, status = \
-        kepio.readTPF(infile,'QUALITY',logfile,False)
+        # read mask defintion data from TPF file
+        maskimg, pixcoord1, pixcoord2, status = kepio.readMaskDefinition(infile,logfile,False)
 
-    # read mask defintion data from TPF file
-    maskimg, pixcoord1, pixcoord2, status = kepio.readMaskDefinition(infile,logfile,False)
+        # observed or simulated data?
+        coa = False
+        instr = pyfits.open(infile,mode='readonly',memmap=True)
+        filever, status = kepkey.get(infile,instr[0],'FILEVER',logfile,False)
+        if filever == 'COA': coa = True
 
-    # observed or simulated data?
-    coa = False
-    instr = pyfits.open(infile,mode='readonly',memmap=True)
-    filever, status = kepkey.get(infile,instr[0],'FILEVER',logfile,False)
-    if filever == 'COA': coa = True
+        # is this a good row with finite timestamp and pixels?
+        if not np.isfinite(barytime[rownum-1]) or not np.nansum(fluxpixels[rownum-1,:]):
+            message = 'ERROR -- KEPFIELD: Row ' + str(rownum) + ' is a bad quality timestamp'
+            kepmsg.err(logfile,message,True)
+            return "", "", "", None
 
-    # is this a good row with finite timestamp and pixels?
-    if not np.isfinite(barytime[rownum-1]) or not np.nansum(fluxpixels[rownum-1,:]):
-        message = 'ERROR -- KEPFIELD: Row ' + str(rownum) + ' is a bad quality timestamp'
-        kepmsg.err(logfile,message,True)
-        return "", "", "", None
+        # construct input pixel image
+        flux = fluxpixels[rownum-1,:]
 
-    # construct input pixel image
-    flux = fluxpixels[rownum-1,:]
-
-    # image scale and intensity limits of pixel data    
-    flux_pl, zminfl, zmaxfl = kepplot.intScale1D(flux, imscale)
-    n = 0
-    imgflux_pl = np.empty((ydim + 2, xdim + 2))
-    for i in range(ydim + 2):
-        for j in range(xdim + 2):
-            imgflux_pl[i,j] = np.nan
-    for i in range(ydim):
-        for j in range(xdim):
-            imgflux_pl[i+1, j+1] = flux_pl[n]
-            n += 1
+        # image scale and intensity limits of pixel data    
+        flux_pl, zminfl, zmaxfl = kepplot.intScale1D(flux, imscale)
+        n = 0
+        imgflux_pl = np.empty((ydim + 2, xdim + 2))
+        for i in range(ydim + 2):
+            for j in range(xdim + 2):
+                imgflux_pl[i,j] = np.nan
+        for i in range(ydim):
+            for j in range(xdim):
+                imgflux_pl[i+1, j+1] = flux_pl[n]
+                n += 1
         
-    # cone search around target coordinates using the MAST target search form 
-    dr = max([ydim + 2, xdim + 2]) * 4.0
-    kepid, ra, dec, kepmag = MASTRADec(float(ra), float(dec), dr, query, logfile)
+        # cone search around target coordinates using the MAST target search form 
+        dr = max([ydim + 2, xdim + 2]) * 4.0
+        kepid, ra, dec, kepmag = MASTRADec(float(ra), float(dec), dr, query, logfile)
 
-    # convert celestial coordinates to detector coordinates
-    sx = np.array([])
-    sy = np.array([])
-    inf, status = kepio.openfits(infile, 'readonly', logfile, False)
-    try:
-        crpix1, crpix2, crval1, crval2, cdelt1, cdelt2, pc, status = \
-            kepkey.getWCSs(infile,inf['APERTURE'],logfile,False) 
-        crpix1p, crpix2p, crval1p, crval2p, cdelt1p, cdelt2p, status = \
-            kepkey.getWCSp(infile,inf['APERTURE'],logfile,False)     
-        for i in range(len(kepid)):
-            dra = (ra[i] - crval1) * np.cos(np.radians(dec[i])) / cdelt1
-            ddec = (dec[i] - crval2) / cdelt2
-            if coa:
-                sx = np.append(sx, -(pc[0,0] * dra + pc[0,1] * ddec) + crpix1 + crval1p - 1.0)
-            else:
-                sx = np.append(sx, pc[0,0] * dra + pc[0,1] * ddec + crpix1 + crval1p - 1.0) 
-            sy = np.append(sy, pc[1,0] * dra + pc[1,1] * ddec + crpix2 + crval2p - 1.0)
-    except:
-        message = 'ERROR -- KEPFIELD: Non-compliant WCS information within file %s' % infile
-        kepmsg.err(logfile,message,True)    
-        return "", "", "", None
+        # convert celestial coordinates to detector coordinates
+        sx = np.array([])
+        sy = np.array([])
+        inf, status = kepio.openfits(infile, 'readonly', logfile, False)
+        try:
+            crpix1, crpix2, crval1, crval2, cdelt1, cdelt2, pc, status = \
+                kepkey.getWCSs(infile,inf['APERTURE'],logfile,False) 
+            crpix1p, crpix2p, crval1p, crval2p, cdelt1p, cdelt2p, status = \
+                kepkey.getWCSp(infile,inf['APERTURE'],logfile,False)     
+            for i in range(len(kepid)):
+                dra = (ra[i] - crval1) * np.cos(np.radians(dec[i])) / cdelt1
+                ddec = (dec[i] - crval2) / cdelt2
+                if coa:
+                    sx = np.append(sx, -(pc[0,0] * dra + pc[0,1] * ddec) + crpix1 + crval1p - 1.0)
+                else:
+                    sx = np.append(sx, pc[0,0] * dra + pc[0,1] * ddec + crpix1 + crval1p - 1.0) 
+                sy = np.append(sy, pc[1,0] * dra + pc[1,1] * ddec + crpix2 + crval2p - 1.0)
+        except:
+            message = 'ERROR -- KEPFIELD: Non-compliant WCS information within file %s' % infile
+            kepmsg.err(logfile,message,True)    
+            return "", "", "", None
 
-    # plot
-    fig = pl.figure(figsize = [10, 10])
-    pl.clf()
+        # plot
+        self.fig = pl.figure(figsize = [10, 10])
+        pl.clf()
             
-    # pixel limits of the subimage
-    ymin = np.copy(float(row))
-    ymax = ymin + ydim
-    xmin = np.copy(float(column))
-    xmax = xmin + xdim
+        # pixel limits of the subimage
+        ymin = np.copy(float(row))
+        ymax = ymin + ydim
+        xmin = np.copy(float(column))
+        xmax = xmin + xdim
 
-    # plot limits for flux image
-    ymin = float(ymin) - 1.5
-    ymax = float(ymax) + 0.5
-    xmin = float(xmin) - 1.5
-    xmax = float(xmax) + 0.5
+        # plot limits for flux image
+        ymin = float(ymin) - 1.5
+        ymax = float(ymax) + 0.5
+        xmin = float(xmin) - 1.5
+        xmax = float(xmax) + 0.5
 
-    # plot the image window
-    ax = pl.axes([0.1,0.11,0.88,0.88])
-    pl.imshow(imgflux_pl,aspect='auto',interpolation='nearest',origin='lower',
-                 vmin=zminfl, vmax=zmaxfl, extent=(xmin,xmax,ymin,ymax), cmap=cmap)
-    pl.gca().set_autoscale_on(False)
-    labels = ax.get_yticklabels()
-    pl.setp(labels, 'rotation', 90)
-    pl.gca().xaxis.set_major_formatter(pl.ScalarFormatter(useOffset=False))
-    pl.gca().yaxis.set_major_formatter(pl.ScalarFormatter(useOffset=False))
-    pl.xlabel('Pixel Column Number', {'color' : 'k'}, fontsize = 24)
-    pl.ylabel('Pixel Row Number', {'color' : 'k'}, fontsize = 24)
+        # plot the image window
+        ax = pl.axes([0.1,0.11,0.88,0.82])
+        pl.title('Select sources for fitting (KOI first)', fontsize = 24)
+        pl.imshow(imgflux_pl,aspect='auto',interpolation='nearest',origin='lower',
+                     vmin=zminfl, vmax=zmaxfl, extent=(xmin,xmax,ymin,ymax), cmap=cmap)
+        pl.gca().set_autoscale_on(False)
+        labels = ax.get_yticklabels()
+        pl.setp(labels, 'rotation', 90)
+        pl.gca().xaxis.set_major_formatter(pl.ScalarFormatter(useOffset=False))
+        pl.gca().yaxis.set_major_formatter(pl.ScalarFormatter(useOffset=False))
+        pl.xlabel('Pixel Column Number', {'color' : 'k'}, fontsize = 24)
+        pl.ylabel('Pixel Row Number', {'color' : 'k'}, fontsize = 24)
 
-    # plot mask borders
-    kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,1,lcolor,'--',0.5)
+        # plot mask borders
+        kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,1,lcolor,'--',0.5)
 
-    # plot aperture borders
-    kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,2,lcolor,'-',4.0)
+        # plot aperture borders
+        kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,2,lcolor,'-',4.0)
 
-    # list sources
-    with open(logfile, 'a') as lf:
-      print('Column    Row  RA J2000 Dec J2000    Kp    Kepler ID', file = lf)
-      print('----------------------------------------------------', file = lf)
-      for i in range(len(sx)-1,-1,-1):
-          if sx[i] >= xmin and sx[i] < xmax and sy[i] >= ymin and sy[i] < ymax:
-              if kepid[i] != 0 and kepmag[i] != 0.0:
-                  print('%6.1f %6.1f %9.5f  %8.5f %5.2f KIC %d' % \
-                      (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i]),float(kepmag[i]),int(kepid[i])), file = lf)
-              elif kepid[i] != 0 and kepmag[i] == 0.0:
-                  print('%6.1f %6.1f %9.5f  %8.5f       KIC %d' % \
-                      (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i]),int(kepid[i])), file = lf)
-              else:
-                  print('%6.1f %6.1f %9.5f  %8.5f' % (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i])), file = lf)
+        # list sources
+        with open(logfile, 'a') as lf:
+          print('Column    Row  RA J2000 Dec J2000    Kp    Kepler ID', file = lf)
+          print('----------------------------------------------------', file = lf)
+          for i in range(len(sx)-1,-1,-1):
+              if sx[i] >= xmin and sx[i] < xmax and sy[i] >= ymin and sy[i] < ymax:
+                  if kepid[i] != 0 and kepmag[i] != 0.0:
+                      print('%6.1f %6.1f %9.5f  %8.5f %5.2f KIC %d' % \
+                          (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i]),float(kepmag[i]),int(kepid[i])), file = lf)
+                  elif kepid[i] != 0 and kepmag[i] == 0.0:
+                      print('%6.1f %6.1f %9.5f  %8.5f       KIC %d' % \
+                          (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i]),int(kepid[i])), file = lf)
+                  else:
+                      print('%6.1f %6.1f %9.5f  %8.5f' % (float(sx[i]),float(sy[i]),float(ra[i]),float(dec[i])), file = lf)
 
-    # plot sources
-    srcinfo = [kepid, sx, sy, kepmag]
-    for i in range(len(sx)-1,-1,-1):
-        if kepid[i] != 0 and kepmag[i] != 0.0:
-            size = max(np.array([80.0,80.0 + (2.5**(18.0 - max(12.0,float(kepmag[i])))) * 250.0]))
-            pl.scatter(sx[i],sy[i],s=size,facecolors='g',edgecolors='k',alpha=0.4)
-        else:
-            pl.scatter(sx[i],sy[i],s=80,facecolors='r',edgecolors='k',alpha=0.4)
+        # plot sources
+        for i in range(len(sx)-1,-1,-1):
+            if kepid[i] != 0 and kepmag[i] != 0.0:
+                size = max(np.array([80.0,80.0 + (2.5**(18.0 - max(12.0,float(kepmag[i])))) * 250.0]))
+                pl.scatter(sx[i],sy[i],s=size,facecolors='g',edgecolors='k',alpha=0.4)
+            else:
+                pl.scatter(sx[i],sy[i],s=80,facecolors='r',edgecolors='k',alpha=0.4)
     
-    # Sizes
-    for tick in ax.xaxis.get_major_ticks():
-        tick.label.set_fontsize(16) 
-    for tick in ax.yaxis.get_major_ticks():
-        tick.label.set_fontsize(16)
+        # Sizes
+        for tick in ax.xaxis.get_major_ticks():
+            tick.label.set_fontsize(16) 
+        for tick in ax.yaxis.get_major_ticks():
+            tick.label.set_fontsize(16)
 
-    # render plot
-    pl.connect('button_release_event', on_mouse_release)
-    pl.show(block=True)
-    pl.close()
-	
-    # stop time
-    kepmsg.clock('\nKEPFIELD ended at',logfile,False)
+        # render plot and activate source selection
+        self.srcinfo = [kepid, sx, sy, kepmag]
+        pl.connect('button_release_event', self.on_mouse_release)
+        pl.show(block=True)
+        pl.close()
+  
 
-    # Info for kepprf
-    strcols = ",".join([str(x) for x in columns])
-    strrows = ",".join([str(x) for x in rows])
-    strflxs = ",".join([str(x) for x in fluxes])
-    return strcols, strrows, strflxs, srcinfo
-
-# interactive source selection
-def on_mouse_release(event):
-    global columns, rows, fluxes
-    if (event.inaxes is not None):
-    
-        col = int(np.round(event.xdata))
-        row = int(np.round(event.ydata))
-        
-        print("SOURCE #%d @ COL %d, ROW %d" % (len(columns) + 1, col, row))
-        
-        columns.append(col)
-        rows.append(row)
-        fluxes.append(1.)
-
+    def on_mouse_release(self, event):
+        if (event.inaxes is not None):
+            colrow = [int(np.round(event.xdata)), int(np.round(event.ydata))]
+            if not colrow in self.colrow:
+                self.colrow.append(colrow)
+                self.fluxes.append(1.)
+                a = pl.annotate(len(self.colrow), xy = colrow, xycoords = 'data', 
+                                ha = 'center', va = 'center', fontsize = 48,
+                                color = 'b', alpha = 0.5)
+                self._text.append(a)
+            else:
+                for i, cr in enumerate(self.colrow):
+                  if cr == colrow:
+                    self.colrow.pop(i)
+                    self.fluxes.pop(i)
+                    self._text.pop(i).remove()
+                    break
+            self.fig.canvas.draw()
+      
 # detector location retrieval based upon RA and Dec
 def MASTRADec(ra,dec,darcsec,srctab,logfile):
 
@@ -675,12 +668,16 @@ def kepprf(infile, columns, rows, fluxes, rownum = 0, border = 0, background = 0
     # plot
     pl.figure(figsize=[12,10])
     pl.clf()
-    plotimage(imgdat_pl,zminfl,zmaxfl,1,row,column,xdim,ydim,0.07,0.53,'observation',cmap,lcolor)
+    
+    # data
+    plotimage(imgdat_pl,zminfl,zmaxfl,1,row,column,xdim,ydim,0.07,0.58,'observation',cmap,lcolor)
     pl.text(0.05, 0.05,'CROWDSAP: %.4f' % CrowdTPF,horizontalalignment='left',verticalalignment='center',
             fontsize=18,fontweight=500,color=lcolor,transform=pl.gca().transAxes)
     kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,1,acolor,'--',0.5)
     kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,2,acolor,'-',3.0)
-    plotimage(imgprf_pl,zminpr,zmaxpr,2,row,column,xdim,ydim,0.44,0.53,'model',cmap,lcolor)
+    
+    # model
+    plotimage(imgprf_pl,zminpr,zmaxpr,2,row,column,xdim,ydim,0.445,0.58,'model',cmap,lcolor)
     pl.text(0.05, 0.05,'Crowding: %.4f' % CrowdAper,horizontalalignment='left',verticalalignment='center',
             fontsize=18,fontweight=500,color=lcolor,transform=pl.gca().transAxes)
     for x,y in zip(OBJx, OBJy):
@@ -696,16 +693,20 @@ def kepprf(infile, columns, rows, fluxes, rownum = 0, border = 0, background = 0
                 pl.scatter(sx[i],sy[i],s=size,facecolors='g',edgecolors='k',alpha=0.1)
             else:
                 pl.scatter(sx[i],sy[i],s=80,facecolors='r',edgecolors='k',alpha=0.1)
-                
-    plotimage(imgfit_pl,zminfl,zmaxfl,3,row,column,xdim,ydim,0.07,0.08,'fit',cmap,lcolor,crowd=Crowding)
+    
+    # binned model            
+    plotimage(imgfit_pl,zminfl,zmaxfl,3,row,column,xdim,ydim,0.07,0.18,'fit',cmap,lcolor,crowd=Crowding)
     kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,1,acolor,'--',0.5)
     kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,2,acolor,'-',3.0)
-    plotimage(imgres_pl,zminfl,zmaxfl,4,row,column,xdim,ydim,0.44,0.08,'residual',cmap,lcolor)
+    
+    # residuals
+    reslim = max(np.abs(zminre), np.abs(zmaxre))
+    plotimage(imgres_pl,-reslim,reslim,4,row,column,xdim,ydim,0.445,0.18,'residual','coolwarm',lcolor)
     kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,1,acolor,'--',0.5)
     kepplot.borders(maskimg,xdim,ydim,pixcoord1,pixcoord2,2,acolor,'-',3.0)
         
     # plot data color bar
-    barwin = pl.axes([0.84,0.08,0.06,0.9])
+    barwin = pl.axes([0.84,0.18,0.03,0.8])
     if imscale == 'linear':
         brange = np.arange(zminfl,zmaxfl,(zmaxfl-zminfl)/1000)
     elif imscale == 'logarithmic':
@@ -736,6 +737,20 @@ def kepprf(infile, columns, rows, fluxes, rownum = 0, border = 0, background = 0
     pl.setp(barwin.get_yticklabels(), 'rotation', 90)
     barwin.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
+    # plot residual color bar
+    barwin = pl.axes([0.07,0.08,0.75,0.03])
+    brange = np.arange(-reslim,reslim,reslim/500)
+    barimg = np.resize(brange,(1,1000))       
+    pl.imshow(barimg,aspect='auto',interpolation='nearest',origin='lower',
+              vmin=np.nanmin(barimg),vmax=np.nanmax(barimg),
+              extent=(brange[0],brange[-1],0.0,1.0),cmap='coolwarm')
+    barwin.xaxis.set_major_locator(MaxNLocator(7))
+    pl.gca().xaxis.set_major_formatter(pl.ScalarFormatter(useOffset=False))
+    pl.gca().set_autoscale_on(False)
+    pl.setp(pl.gca(),yticklabels=[],yticks=[])
+    pl.xlabel('Residuals (e$^-$ s$^{-1}$)')
+    barwin.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+
     # render plot
     pl.show(block=True)
     pl.close()
@@ -764,7 +779,7 @@ def plotimage(imgflux_pl,zminfl,zmaxfl,plmode,row,column,xdim,ydim,winx,winy,tla
 
 # plot the image window
 
-    ax = pl.axes([winx,winy,0.37,0.45])
+    ax = pl.axes([winx,winy,0.375,0.4])
     pl.imshow(imgflux_pl,aspect='auto',interpolation='nearest',origin='lower',
               vmin=zminfl,vmax=zmaxfl,extent=(xmin,xmax,ymin,ymax),cmap=colmap)
     pl.gca().set_autoscale_on(False)
@@ -772,6 +787,8 @@ def plotimage(imgflux_pl,zminfl,zmaxfl,plmode,row,column,xdim,ydim,winx,winy,tla
     pl.setp(labels, 'rotation', 90)
     pl.gca().xaxis.set_major_formatter(pl.ScalarFormatter(useOffset=False))
     pl.gca().yaxis.set_major_formatter(pl.ScalarFormatter(useOffset=False))
+    pl.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    pl.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
     if plmode == 1:
         pl.setp(pl.gca(),xticklabels=[])
     if plmode == 2:
@@ -779,9 +796,9 @@ def plotimage(imgflux_pl,zminfl,zmaxfl,plmode,row,column,xdim,ydim,winx,winy,tla
     if plmode == 4:
         pl.setp(pl.gca(),yticklabels=[])
     if plmode == 3 or plmode == 4:
-        pl.xlabel('Pixel Column Number', {'color' : 'k'})
+        pl.xlabel('Pixel Column Number', {'color' : 'k'}, fontsize = 14)
     if plmode == 1 or plmode == 3:
-        pl.ylabel('Pixel Row Number', {'color' : 'k'})
+        pl.ylabel('Pixel Row Number', {'color' : 'k'}, fontsize = 14)
     pl.text(0.05, 0.93,tlabel,horizontalalignment='left',verticalalignment='center',
             fontsize=36,fontweight=500,color=labcol,transform=ax.transAxes)
 
@@ -808,7 +825,11 @@ def GetPixelCrowding(KIC, quarter, short_cadence = False, **kwargs):
     fitsfile = f.filename()
     CrowdTPF = f[1].header['CROWDSAP']
   
-  strcols, strrows, strflxs, srcinfo = kepfield(fitsfile, **kwargs)
+  field = kepfield(fitsfile, **kwargs)
+  strcols = ",".join([str(x[0]) for x in field.colrow])
+  strrows = ",".join([str(x[1]) for x in field.colrow])
+  strflxs = ",".join([str(x) for x in field.fluxes])
+  srcinfo = field.srcinfo
   
   if strcols != "":
     return kepprf(fitsfile, strcols, strrows, strflxs, CrowdTPF = CrowdTPF, srcinfo = srcinfo, **kwargs)
